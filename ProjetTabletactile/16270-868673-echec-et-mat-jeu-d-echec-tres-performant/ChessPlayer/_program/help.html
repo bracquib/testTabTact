@@ -1,0 +1,695 @@
+<html><head><title>ChessPlayer - Help</title>
+<style>
+body,a { font-family:verdana; font-size:13px; }
+.littleheading { font-size:14px; font-weight:bold; }
+.heading { font-size:16px; font-weight:bold; }
+b { font-weight:bold; }
+.button { cursor:default; border:2px outset; }
+</style>
+
+<script language="javascript">
+if (location.search){
+	var ary=window.location.search.substr(1).split("&");
+	for (i=0;i<ary.length;i++) {
+		ary[i]=ary[i].split("=");
+		}
+	var qStr=new Array();
+	for (i=0;i<ary.length;i++) {
+		ary[i][0]=ary[i][0].replace(/\+/g," ");
+		ary[i][0]=unescape(ary[i][0]);
+		ary[i][1]=ary[i][1].replace(/\+/g," ");
+		ary[i][1]=unescape(ary[i][1]);
+		qStr[ary[i][0]]=ary[i][1];
+		}
+	var sty='';
+	sty+='<style>';
+	sty+='body, p, .p \{ font-family:verdana,arial,sans serif\; font-size:13px\; color:#'+qStr["borco"] + '\; background-color:#'+qStr["lico"] + '\; \}';
+	sty+='.li, .li a \{ font-family:verdana,arial,sans serif;font-size:11px\; \}';
+	sty+='.littleheading \{ color:#'+qStr["borco"] + '\; font-size:15px\; font-family:verdana,arial\; font-weight:bold \}';
+	sty+='.heading \{ color:#'+qStr["borco"] + '\; font-size:18px\; font-family:verdana,arial\; font-weight:normal \}';
+	sty+='.comic \{ color:#'+qStr["daco"] + '\; font-size:13px\; font-weight:bold\; font-family:comic sans ms,arial\; \}';
+	var butBord='border:#'+qStr["daco"] + ' 2px outset\;';
+	sty+='.button \{ cursor:default\; color:#'+qStr["lico"] + '\; '+butBord+' background-color:#'+qStr["daco"] + '\; font-size:11px\; font-weight:bold\; font-family:comic sans ms,arial\; \}';
+	sty+='a \{ color:#'+qStr["daco"] + '\; font-size:13px\; font-weight:bold\; font-family:verdana,arial,sans serif\; \}';
+	sty+='ul,ol,li,li a,ol li a,ul li a \{ font-size:13px\; font-family:verdana,arial,sans serif\; \}';
+	sty+='</style>';
+	document.write(sty);
+	}
+var ie5=false;
+if(document.all){ie5=true;}
+var agt=navigator.userAgent.toLowerCase();
+var ie5p=false;
+if(ie5&&(agt.indexOf("msie 5.5")!=-1||agt.indexOf("msie 6")!=-1)){ie5p=true;}
+</script>
+
+</head>
+<body class=lico onload="window.focus()">
+
+<script language="javascript">
+
+if(document.layers){
+	butBord='';
+	}
+else if(document.all) {
+	var sty='';
+	sty+='<style>';
+	sty+='.ulup\{position:relative\;top:-15px\;\}';
+	sty+='</style>';
+	document.write(sty);
+	}
+
+</script>
+
+<p class=heading>Chess Player Help
+
+
+<script language="javascript">
+
+if(location.search){
+	var su=window.location.search.substr(1);
+	if(qStr["size"]=="small"){
+	su=su.replace("&size=small","");
+		document.write(' <span class="li" style="font-weight:normal"><a class=li href="#" onclick="window.open(\'help.html?'+su+'&size=normal\',\'\')\;window.close()">(show in a normal window)</a></span>');
+		}
+	else{
+	su=su.replace("&size=normal","");
+		document.write(' <span class="li" style="font-weight:normal"><a class=li href="#" onclick="window.open(\'help.html?'+su+'&size=small\',\'programWin\',\'left=32,top=32,width=455,height=440,status=yes,menubar=no,toolbar=yes,scrollbars=yes,resizable=yes\')\;window.close()">(show in a small window)</a></span>');
+		}
+	}
+
+</script>
+
+
+
+<p><table cellpadding=0 cellspacing=0 border=0>
+<tr><td valign=top>
+
+<li class=li><a href="#moving">Moving pieces</a>
+<p><li class=li><a href="#input">Input a position string</a>
+<li class=li><a href="#output">Output a position string</a>
+
+<p><li class=li><a href="#control">The control panel</a>
+<ul class=ulup>
+<li class=li><a href="#resize">Resize board to..</a>
+<li class=li><a href="#new">New game / Clear board</a>
+<li class=li><a href="#show">Show legal moves</a>
+<li class=li><a href="#disallow">Disallow illegal moves</a>
+<li class=li><a href="#switch">Switch viewpoint</a>
+</ul>
+
+<p><li class=li><a href="#further">Further options</a>
+<ul class=ulup>
+<li class=li><a href="#changing">Changing pieces</a>
+<li class=li><a href="#fantasy">Fantasy layouts</a>
+<ul>
+
+</td><td>&nbsp;&nbsp;</td><td valign=top>
+
+
+<p><li class=li><a href="#options">Recorder options</a>
+<ul class=ulup>
+<li class=li><a href="#fen">Export FEN positions</a>
+<li class=li><a href="#smith">Export in Smith notation</a>
+<li class=li><a href="#explayer">Export in Player format</a>
+<li class=li><a href="#implayer">Import in Player format</a>
+<script>
+if(ie5){
+document.write('<li class=li><a href="#impgn">Import PGN games</a>');
+document.write('<li class=li><a href="#save">Save this game</a>');
+document.write('<li class=li><a href="#load">Load saved game</a>');
+document.write('<li class=li><a href="#delete">Delete</a>');
+}
+</script>
+</ul>
+
+<p><li class=li><a href="#reccontrols">Recorder controls</a>
+<ul class=ulup>
+<li class=li><a href="#record">Record</a>
+<li class=li><a href="#play">Play</a>
+<li class=li><a href="#posnum">Position number</a>
+<li class=li><a href="#shuttle">Shuttle controls</a>
+<script>
+if(ie5){
+document.write('<li class=li><a href="#movelog">The move log</a>');
+document.write('<li class=li><a href="#annotations">Annotate this position</a>');
+document.write('<li class=li><a href="#annogame">Annotate this game</a>');
+}
+</script>
+</ul>
+
+
+</td></tr>
+</table>
+
+
+<a name=moving></a><p class=heading><br>Moving pieces
+
+<p>All the chess pieces move with a drag-and-drop action. Drag a piece over any blank square,
+ or over an opposite-coloured piece to capture it.
+
+
+<p>When you let go of a piece, the move is validated to some extent. At all settings:
+
+<ul>
+<li class=p>en-passent is recognised
+<li class=p>castling is automatic
+<li class=p>the king cannot be captured
+<li class=p>the first pawn of each color to reach the opposite side of the board is automatically promoted
+to a queen; <a href="#changing">manual promotion</a> is also possible.
+</ul>
+
+<p>Further validation is optional. You can set the board to
+<a href="#disallow">disallow illegal moves</a>, and it can also
+<a href="#show">show legal moves</a> for any given piece at any given position.
+
+<p>You can also move pieces
+directly off the board into the spaces either side - white to the right and
+black to the left. Pieces which are off the board can be recovered with
+a single click; the piece will appear in the first available square on the board, rather than its
+home square, which might be occupied.  Because of this, recovering a piece
+will always <b>de-active</b> <a href="#disallow">disallow illegal moves</a>.
+
+
+<div align=right class=li><br><a href="#top">top</a></div>
+
+
+
+<a name=input></a><p class=heading><br>Input a position string
+
+<p>You can input a position string at any time, by typing or pasting into the uppermost of the two
+long text boxes underneath the board,  and pressing the button marked
+<br><span class=button>&nbsp;« In&nbsp;</span>.
+It might not always be possible to drag and highlight the text already in
+this box, in which case you should be able to triple-click, or click once and press <b>Ctrl/A</b>, then
+hit delete.
+
+<p>The position string is in <a href="http://pgn.freeservers.com/Standard.txt" target="_blank">FEN Standard</a> format.
+
+
+<div align=right class=li><br><a href="#top">top</a></div>
+
+
+<a name=output></a><p class=heading><br>Output a position string
+
+<p>At any time, press the <span class=button>&nbsp;« Out&nbsp;</span>&nbsp;button to display your current position
+in the lower text-box.  The output string is in the same format as the input.
+
+<p>If you're <a href="#reccontrols">recording</a> the game then output is automatic.
+
+
+<div align=right class=li><br><a href="#top">top</a></div>
+
+
+<a name=control></a><p class=heading><br>The control panel
+
+
+<p>The control panel down the right-hand side has all the main game options and controls.
+
+<script>
+if(ie5){
+document.write('Each section can be contracted or expanded using the small bars at the top of each one. ');
+document.write('This is particularly helpful when using the <a href="#movelog">move log</a>.<p> ');
+}
+</script>
+
+ Some functions require the board to be reloaded, which is indicated in this guide using a <b>&reg;</b> symbol.
+
+<script>
+if(ie5){
+document.write(' When reloading, any unsaved <a href="#reccontrols">recorder</a> information will be lost.');
+}
+</script>
+
+
+<div align=right class=li><br><a href="#top">top</a></div>
+
+
+<a name=resize></a><p class=littleheading><br>Resize board to.. &reg;
+
+<p>This control allows you to resize the chessboard to between 60% and 150% of it's normal size.
+
+
+<div align=right class=li><br><a href="#top">top</a></div>
+
+
+<a name=new></a><p class=littleheading><br>New game / Clear board
+
+<p>These buttons reset the board to a <span class=button>&nbsp;New game </span>&nbsp;
+or <span class=button>&nbsp;Clear&nbsp;</span>&nbsp;board, and also clear
+the contents of the <a href="#reccontrols">game recorder</a>. With this option you will
+be asked to confirm.
+
+
+
+
+<div align=right class=li><br><a href="#top">top</a></div>
+
+
+
+<a name=show></a><p class=littleheading><br>Show legal moves
+
+<p>If show legal moves is checked then whenever you click down on a piece its
+available target squares are indicated with an orange highlighter.  This is
+useful as a tutoring aid, to help you if you're not sure how the pieces move
+or when less common situations, such as en-passent, apply.
+
+<p>The only exception is when you move the king - all its available target
+squares are indicated even if that move would be illegal, because it would be moving into check or
+castling through a check line.
+
+<p>Although legal moves are shown, they are not enforced; full validation
+is controlled separately, with the option <a href="#disallow">disallow illegal moves</a>.
+
+
+<div align=right class=li><br><a href="#top">top</a></div>
+
+
+<a name=disallow></a><p class=littleheading><br>Disallow illegal moves
+
+<p>If disallow illegal moves is checked, it is not possible to move pieces
+illegally, with the exception of a king into check or through a check line.
+
+<p>Even when this option is enabled, white and black do not have to move in turn. This is only enforced
+if you're <a href="#reccontrols">recording</a> the game.
+
+<div align=right class=li><br><a href="#top">top</a></div>
+
+
+<a name=switch></a><p class=littleheading><br>Switch viewpoint
+
+<p>The <span class=button>&nbsp;Switch viewpoint&nbsp;</span> button allows you to switch
+between white and black points of view. You can change the view at any time, even while
+<a href="#record">recording</a> or <a href="#play">playing through</a> a game.
+<script>
+if(ie5){
+document.write('<a href="#save">Saved games</a> are stored from your contemporary point of view.');
+}
+</script>
+
+
+
+<div align=right class=li><br><a href="#top">top</a></div>
+
+
+
+
+<a name=options></a><p class=heading><br>Recorder options
+
+<p>ChessPlayer has a range of import and export options, allowing for use with
+other chess programs, with databases, for correspondence or email chess, or for chewing through
+your own strategies.
+
+<script>
+if(ie5){
+document.write(' If you export in a standardised format, the log will include any <a href="#annotations">annotations</a> ');
+document.write('you recorded. ');
+}
+</script>
+ If you export in <a href="#explayer">player format</a> the program generates a hyperlink which can
+be pasted into an email or forum, so that others can <a href="#implayer">import</a> and play through your game using this program.
+
+<p>Export logs are written into a new browser window, which you can copy-and-paste, or
+save:
+
+<ol>
+<li class="p">from the menubar in the new window, select <b>File</b> and then
+ <b>Save as ...</b>
+<li class="p">a dialogue box will appear where you can choose a file name for the log -
+it will default to
+<script>
+if(ie5) { document.write(' whatever you specified for the <a href="#annogame">event tag</a>, or blank if undefined.'); }
+else { document.write(' "chessboard.html".'); }
+</script>
+<li class="p">Underneath this is a dropdown selector called <b>Save as type</b>, and you should choose
+<script>
+if(ie5){document.write(' <b>Web Page, HTML only</b>. It\'s important that you <b><u>do not select</u> Web Page Complete</b>, as this will save the board and not the log.');}
+else{document.write(' <b>HTML Files</b>.');}
+</script>
+<li class="p">choose a location and then click <b>Save</b>.
+</ol>
+
+
+<div align=right class=li><br><a href="#top">top</a></div>
+
+
+
+<a name=fen></a><p class=littleheading><br>Export FEN positions
+
+<p>Creates an export log of
+<script>
+if(ie5){
+document.write(' <a href="#annogame">annotation tags</a> ');
+}
+else{
+document.write(' annotation tags (if included through an input game) ');
+}
+</script>
+followed by move text in <a href="http://www.rhrk.uni-kl.de/~wehner/chess/fentxt.html" target="_blank">FEN Standard</a>
+format. Click <a href="_eg/fen_demo.htm" target="_blank">here</a> for an example.
+
+<div align=right class=li><br><a href="#top">top</a></div>
+
+
+
+
+<a name=smith></a><p class=littleheading><br>Export in Smith notation
+
+<p>Creates an export log of
+<script>
+if(ie5){
+document.write(' <a href="#annogame">annotation tags</a> ');
+}
+else{
+document.write(' annotation tags (if included through an input game) ');
+}
+</script>
+followed by move text in Smith notation.
+Click <a href="_eg/smith_demo.htm" target="_blank">here</a> for an example.
+
+<div align=right class=li><br><a href="#top">top</a></div>
+
+
+
+<a name=explayer></a><p class=littleheading><br>Export in Player format
+
+
+<p>This option creates a game string in the program's own format, which is also
+displayed in the form of a hyperlink. ChessPlayer can
+accept an <a href="#implayer">input game</a> in this format, making it an ideal tool
+for correspondence chess and analysis.
+
+<p>The move text, final position,
+<script>
+if(ie5){
+document.write(' <a href="#control">control panel</a> options, <a href="#switch">viewpoint</a>, styles and <a href="#annogame">game annotation tags</a> are included in player-format game strings. However individual <a href="#annotations">position annotations</a> are not. ');
+}
+else{
+document.write(' <a href="#switch">viewpoint</a>, styles and game annotation tags (if included through an input game) are included in player-format game strings. ');
+}
+</script>
+
+
+<p>Care should be taken that the the whole game string is intact.
+Click <a href="_eg/player_demo.htm" target="_blank">here</a> for an example.
+
+<div align=right class=li><br><a href="#top">top</a></div>
+
+
+
+
+<a name=implayer></a><p class=littleheading><br>Import in Player format &reg;
+
+
+<p>Import a game which has previously been <a href="#explayer">saved in player format</a>.
+You will be prompted to paste the string into an input box and click OK.
+
+<div align=right class=li><br><a href="#top">top</a></div>
+
+
+
+<script language="javascript1.3">
+
+var ddl=document.location.href;
+var live=true;
+if(ddl.indexOf("http://")==-1) { live=false; }
+
+var pgt='';
+
+pgt+='<a name=impgn></a><p class=littleheading><br>Import PGN games ';
+
+pgt+='<p>This powerful feature allows you to import and convert PGN files into playable games. The pgn ';
+pgt+='conversion process takes place in a separate window, which then sends game links back ';
+pgt+='to the main board. ';
+
+if(!live) {
+
+	pgt+='<!--local--> ';
+
+	pgt+='<p>In the new window, click the <span class=button>&nbsp;Browse ...&nbsp;</span> button to select a .pgn file from ';
+	pgt+='your computer, then click ';
+
+	pgt+='<!-- /local--> ';
+
+	}
+
+if(live){
+
+	pgt+='<!--live--> ';
+
+	pgt+='<p>In the new window, choose the file you want from the dropdown selector and then click ';
+
+	pgt+='<!-- /live--> ';
+
+	}
+
+pgt+='<span class=button>&nbsp;Import&nbsp;</span> and the program will begin ';
+pgt+='compiling a list of games.  <p><b>Depending on the size of the file and the speed of your computer, this can take ';
+pgt+='from a few seconds to several minutes.</b> During this process, the script will consume slightly more RAM than usual, and quite possibly all your available CPU time. With large files, I recommend you not try to do anything else at the same time, or Internet Explorer may crash.';
+
+pgt+='<p>There is a limit to the amount of data the script can ';
+pgt+='handle, so to try and avoid the possibility of freezing or crashing your browser, only the first 500 games (average 250K) of any given file can be converted. ';
+
+
+pgt+='<p>In due course, the list will appear, indexed by Event name, Round, date and player names.  Click ';
+pgt+='on one of the games and it will be converted into Smith notation and then sent back to the main chessboard, where you can interact with it as normal. ';
+
+pgt+='<p><b>Notes about PGN conversion</b> ';
+
+pgt+='<p>ChessPlayer is unlikely to be able to process games which contain illegal moves, ';
+pgt+='or have been incorrectly notated. For example: ';
+
+pgt+='<p style="font-family:courier">1. d4 Nf6 2. c4 e5 3. dxe5 Ne4 4. Qc2 Bb4+ 5. Nd2 d5 6. exd6 Bf5 7. Nf3 Nc6 ';
+
+pgt+='<p>At move 7 of this game, both white knights can legally move to f3, ';
+pgt+='yet there is no disambiguator, and the program cannot know which was intended. ';
+pgt+='In these situations the conversion will stop, and return "Unable to process PGN data". ';
+pgt+='This will also be returned if the conversion process breaks for another reason, such as missing or incomplete data. ';
+pgt+=' In the event that processing of a valid PGN game should fail, ';
+pgt+='please <a href="mailto:cake@brothercake.com">contact the author</a> with details. ';
+
+pgt+='<p>ChessPlayer is currently unable to process games which contain commentary; ';
+pgt+='these games do not even appear in the list.';
+
+
+pgt+='<div align=right class=li><br><a href="#top">top</a></div>';
+
+
+if(ie5p) { document.write(pgt); }
+
+if(ie5){
+
+document.write('<a name=save></a><p class=littleheading><br>Save this game ');
+
+document.write('<p><a href="#reccontrols">Recorded</a> games can be saved on your computer. When you ');
+document.write('select Save you\'ll be prompted to enter a name, which can only contain ');
+document.write('letters, numbers and spaces. Take care to avoid overlong names, or they may not be readable ');
+document.write('in the game selector. ');
+
+document.write('<p>This feature uses a cookie to store the information, so it will only work if your browser ');
+document.write('is set to accept them. However there\'s a limit to how much data ');
+document.write(' can be stored in a cookie, which amounts to 4K, or approximately three full games. Saving further games will only be possible if you delete earlier ones.');
+
+document.write('<div align=right class=li><br><a href="#top">top</a></div> ');
+
+document.write('<a name=load></a><p class=littleheading><br>Load saved game &reg; ');
+
+document.write('<p>Load a previously <a href="#save">saved</a> game by selecting its name from the list. ');
+
+document.write('<div align=right class=li><br><a href="#top">top</a></div> ');
+
+document.write('<a name=delete></a><p class=littleheading><br>Delete &reg; ');
+
+document.write('<p>If you wish to delete a game you must first <a href="#load">load</a> it into ');
+document.write('the recorder memory; its name then will appear in the <a href="#reccontrols">recorder control</a> ');
+document.write('selector as a delete option. ');
+
+document.write('<div align=right class=li><br><a href="#top">top</a></div>');
+
+}
+
+</script>
+
+
+<a name=reccontrols></a><p class=heading><br>Recorder controls
+
+<p>ChessPlayer has a built in game recorder, which stores the board layout after each
+move. It works basically like a tape machine, using 'shuttle' controls to record, play and step through moves:
+
+
+<div align=right class=li><br><a href="#top">top</a></div>
+
+
+<a name=record></a><p class=littleheading><br>Record
+
+
+<p>The <span class=button>&nbsp;Record&nbsp;</span>&nbsp;button begins and stops game recording. As
+you record, the total number of moves is shown in the <a href="#posnum">position number</a> display.
+Each move is also shown in the <a href="#output">output</a> display as a
+<a href="http://www.rhrk.uni-kl.de/~wehner/chess/fentxt.html" target="_blank">FEN position</a>
+<script>
+if(ie5){
+document.write(' and written into the <a href="#movelog">move log</a> in Smith notation. You can add <a href="#annotations">annotation or commentary</a> to each recorded position, which is reproduced in FEN and Smith notation <a href="#options">exports</a>.');
+}
+else { document.write('.'); }
+</script>
+
+
+ If you <a href="#shuttle">go back</a> to an earlier move before or during recording, any later moves
+ are overwritten with new ones.
+
+<p>When recording a game, the white and black pieces can only move in turn.
+
+
+<div align=right class=li><br><a href="#top">top</a></div>
+
+
+<a name=play></a><p class=littleheading><br>Play
+
+<p>The <span class=button>&nbsp;Play&nbsp;</span>&nbsp; button begins and stops automatic play through.
+You can play from either white or black's perspective, and can you can even <a href="#switch">switch viewpoint</a>
+without stopping playback.
+
+<p>
+
+
+
+
+<div align=right class=li><br><a href="#top">top</a></div>
+
+
+<a name=posnum></a><p class=littleheading><br>Position number
+
+<p>The first digit shows the current position number, which has a single or double dot
+for the white and black turn in each move. The second digit,
+after the forward slash, is the total number of recorded moves. The start position, or an empty recorder,
+is indicated with two dots.
+<script>
+if(ie5){
+document.write(' Positions which have <a href="#annotations">annotation</a> have a ');
+document.write(' * after the position number to indicate that a comment is attached. ');
+document.write(' <p>This display is also used to show if recording or playback is in progress: the background ');
+document.write(' color changes to red for recording, or green for playback. ');
+}
+</script>
+
+
+
+
+
+
+<div align=right class=li><br><a href="#top">top</a></div>
+
+
+<a name=shuttle></a><p class=littleheading><br>Shuttle controls
+
+<p>There are four shuttle controls:
+
+<ul>
+<li>Beginning <span class=button>&nbsp;«&nbsp;</span>&nbsp;set the board back to the start of the game.
+<p><li>Previous move <span class=button>&nbsp;&lt;&nbsp;</span>&nbsp;go back to the previous recorded position.
+<p><li>Next move <span class=button>&nbsp;&gt;&nbsp;</span>&nbsp;go forwards to the next recorded position.
+<p><li>Last move <span class=button>&nbsp;»&nbsp;</span>&nbsp;set the board to the final recorded position.
+</ul>
+
+<div align=right class=li><br><a href="#top">top</a></div>
+
+
+<script>
+
+if(ie5){
+
+document.write(' <a name="#movelog"></a><p class=littleheading><br>The move log ');
+
+document.write(' <p>Underneath the <a href="#reccontrols">recorder</a> section is the move log, where each move you ');
+document.write(' record is displayed in Smith notation; you can click on individual moves ');
+document.write(' to set the board to that position.  You can go to different positions while <a href="#play">play-through</a> is in progress; the game will briefly pause, then continue from its new position. ');
+
+document.write(' <div align=right class=li><br><a href="#top">top</a></div> ');
+
+document.write(' <a name=annotations></a><p class=littleheading><br>Annotate this position ');
+
+document.write(' <p>Underneath the <a href="#shuttle">shuttle controls</a> is a <span class=button>&nbsp;@&nbsp;</span>&nbsp; button ');
+document.write(' next to a small text box.  You can use this to add annotation or commentary ');
+document.write('  to each position. Type into the text box and either click the ');
+document.write('  <span class=button>&nbsp;@&nbsp;</span>&nbsp;button ');
+document.write('  or press Enter, and your ');
+document.write('  comments will be recorded with that position.  The <a href="#posnum">position number</a> display will ');
+document.write('  have an asterisk <b>*</b> to indicate that it has a comment attached.');
+
+document.write('  <p>When you play through a game, the comment for each position will appear in the same text box.  You can delete a comment by erasing the text then clicking the button again.');
+document.write('  Comments are recorded into the <a href="#fen">fen</a> and <a href="#smith">smith notation</a> ');
+document.write('  logs, however they are not <a href="#save">saved</a>, nor included in <a href="#explayer">player format</a> ');
+document.write('  game strings. ');
+
+document.write(' <div align=right class=li><br><a href="#top">top</a></div> ');
+
+document.write(' <a name=annogame></a><p class=littleheading><br>Annotate this game ');
+
+document.write(' <p>At the very top-left of the board is another ');
+document.write(' <span class=button>&nbsp;@&nbsp;</span>&nbsp;button. ');
+document.write(' Clicking this will open a small window, in which you can add game annotation.  ChessPlayer supports the PGN seven-tag roster, plus ');
+document.write(' a FIDE Elo rating and a country-code for each player.  The name, country flag and rating of each player ');
+document.write(' is shown on the board and the event name appears in the title bar; the other information is purely throughput, whose data ');
+document.write(' is added to <a href="#reccontrols">export formats</a>. ');
+
+document.write(' <div align=right class=li><br><a href="#top">top</a></div> ');
+
+}
+
+</script>
+
+<a name=further></a><p class=heading><br>Further options
+
+<p>ChessPlayer has a number of additional options for greater expression
+of unusual game situations:
+
+<div align=right class=li><br><a href="#top">top</a></div>
+
+
+<a name=changing></a><p class=littleheading><br>Changing pieces
+
+<p>You can change any square to any piece, which might be useful for setting
+up non-standard piece layouts or for promoting a pawn to something other
+than a queen.
+
+<p>Double-click on a piece or blank square and you'll be prompted to enter a piece code,
+eg <b>q</b> for a black queen
+or <b>N</b> for a white knight. You can also choose <b>x</b> to create a blank square.
+Click OK and the square will change to that selection.
+
+
+<p>If you change pieces in this way during a <a href="#reccontrols">recorded game</a>, and you then
+<a href="#explayer">export</a> and <a href="#implayer">re-import</a> that game,
+the changes are reflected with the recorded position which <i>follows</i>
+when you changed the piece.
+
+<div align=right class=li><br><a href="#top">top</a></div>
+
+
+<a name=fantasy></a><p class=littleheading><br>Fantasy layouts
+
+
+<p>The board layout does not have to have the correct proportion of pieces. You could set up a board
+with four knights, or 16 queens each! However the program will still think there should have been eight pawns,
+two bishops, etc; it will assume those pieces have already been taken, and plot them in the spaces at
+the side.
+
+<p>This is relevant because when there are 16 pieces of each color at the sides, no more can be taken.
+If you land on a piece when the space for that color is full, the two pieces simply swap over.
+
+
+
+
+
+<div align=right class=li><br><a href="#top">top</a></div>
+
+
+
+
+
+
+</body></html>
+
+
+
+

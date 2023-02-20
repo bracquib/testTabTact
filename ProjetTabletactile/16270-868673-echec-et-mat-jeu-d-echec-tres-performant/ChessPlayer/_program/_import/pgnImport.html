@@ -1,0 +1,34 @@
+<html><head><title>Import PGN</title>
+<script language="javascript1.3" src="qStr.js"></script>
+</head>
+<body class=daco onload="if(window.opener){checkIdle()}" id="thebody" style="cursor:default">
+
+
+<script language="javascript1.3" src="pgnImport.js">
+////////////////////////////////////////////////////////////////////////////////
+//                                                                            //
+//   javascript pgn conversion by Brothercake - http://www.brothercake.com/   //
+//   this is a component script to ChessPlayer v2.2                           //
+//                                                                            //
+////////////////////////////////////////////////////////////////////////////////
+</script>
+
+<form name="pgnChessForm">
+<iframe id="shell" src="" onload="processPgnImport(this.src)" style="display:none;height:100px"></iframe>
+<script language="javascript1.3">
+var fStr='';
+fStr+='';
+fStr='<table cellpadding=0 cellspacing=4 border=0 style="width:340px">';
+fStr='<tr>';
+fStr='<td align=right><input name="pfi" type=file style="width:260px" class=daco></td>';
+fStr+='<td>&nbsp;<input name="pin" type=button class=daco style="width:83px\;cursor:default" value="Import" onclick="importPGN()" onmouseup="this.blur()"></td></tr></table>';
+fStr+='<p><div id="pgnselect" style="width:320px">';
+fStr+='<table cellpadding=0 cellspacing=10 border=0 style="width:340px">';
+fStr+='<tr><td align=left class=daco style="font-size:13px">Click the "Browse" button above to select a .pgn file, then click "Import".</td></tr>';
+fStr+='</tr></table>';
+fStr+='</div>';
+if(window.opener) { document.write(fStr); }
+</script>
+</form>
+
+</body></html>

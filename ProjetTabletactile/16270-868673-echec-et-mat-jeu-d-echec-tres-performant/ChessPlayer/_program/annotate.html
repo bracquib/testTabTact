@@ -1,0 +1,185 @@
+ <html><head><title>ChessPlayer - Annotations</title>
+<script language="javascript1.3">
+if (location.search){
+	var ary=window.location.search.substr(1).split("&");
+	for (i=0;i<ary.length;i++) {
+		ary[i]=ary[i].split("=");
+		}
+	var qStr=new Array();
+	for (i=0;i<ary.length;i++) {
+		ary[i][0]=ary[i][0].replace(/\+/g," ");
+		ary[i][0]=unescape(ary[i][0]);
+		ary[i][1]=ary[i][1].replace(/\+/g," ");
+		ary[i][1]=unescape(ary[i][1]);
+		qStr[ary[i][0]]=ary[i][1];
+		}
+	var pf = qStr['pf'];
+	var sty='';
+	sty+='<style>';
+	sty+='.lico \{color:#'+qStr["borco"] + '\; background-color:#'+qStr["lico"] + '\; border-color:#'+qStr["lico"] + '\; \}';
+	sty+='.daco \{cursor:default; color:#'+qStr["lico"] + '\; background-color:#'+qStr["daco"] + '\; border-color:#'+qStr["lico"] + '\; font-size:13px\; font-weight:bold\; font-family:comic sans ms,arial\; \}';
+	sty+='.panel \{background-color:#'+qStr["daco"] + '\;}';
+	sty+='</style>';
+	document.write(sty);
+	document.bgColor=qStr['daco'];
+	}
+</script>
+</head>
+<body scroll=no onload="if(window.opener){checkIdle()}">
+<script language="javascript1.3">
+if (location.search){
+
+	var firstLoad=true;
+	var idleTimer;
+	function checkIdle() {
+		if(firstLoad) { window.focus(); firstLoad=false; }
+		if(window.opener.closed) { window.close(); }
+		else { idleTimer=setTimeout("checkIdle()",1000); }
+
+		}
+
+	var dc=window.opener.document.forms.chessform;
+	var ds=window.opener.document.all;
+	var woc=window.opener.cCode;
+	var won=window.opener.cNames;
+
+	var wSel='';
+	var bSel='';
+	for(i=0;i<won.length;i++){
+		wSel+='<option value='+woc[i];
+		if(dc.aWN.value==woc[i]) { wSel+=' selected'; }
+		wSel+='>'+won[i]+'</option>';
+		bSel+='<option value='+woc[i];
+		if(dc.aBN.value==woc[i]) { bSel+=' selected'; }
+		bSel+='>'+won[i]+'</option>';
+		}
+
+	function cf(fElem) {
+		var fVal=fElem.value
+		if(fVal=="?"||fVal=="-"){fVal="";}
+		fElem.value=fVal;
+		fElem.select();
+		}
+
+	function vf(fElem) {
+		var fVal=fElem.value
+		fVal=fVal.replace(/[\/\\\\&\=]/g,"");
+		if(fElem.name){
+			if(fElem.name=="res") { if(fVal==""){fVal="*";} }
+			else if (fElem.name=="elo") { if(fVal==""){fVal="-";} }
+			}
+		else if(fVal==""){fVal="?";}
+		fElem.value=fVal;
+		}
+
+	function getDate() {
+		var theDate = new Date;
+		var yrs = theDate.getYear();
+		var mth = theDate.getMonth();
+		mth++;
+		if(mth<10){mth="0"+mth;}
+		var day = theDate.getDate();
+		if(day<10){day="0"+day;}
+		document.forms.annoform[2].value=yrs+"."+mth+"."+day
+		}
+
+	function saveAndClose() {
+		if(window.opener&&!window.opener.closed){
+			var showInd=new Array(false,false);
+			var da=document.forms.annoform;
+			dc.aE.value=da[0].value;
+			if(da[0].value!="?") { window.opener.document.title = "Chess Game - "+da[0].value; }
+			dc.aS.value=da[1].value;
+			dc.aD.value=da[2].value;
+			dc.aR.value=da[4].value;
+			dc.aW.value=da[5].value;
+			if(da[5].value=="?") { da[5].value=" "; }
+			if(da[5].value!="?"){ds["wPlayer"].innerText=da[5].value;showInd[0]=true;}
+			dc.aB.value=da[6].value;
+			if(da[6].value=="?") { da[6].value=" "; }
+			if(da[6].value!="?"){ds["bPlayer"].innerText=da[6].value;showInd[1]=true;}
+			dc.aRe.value=da[7].options[da[7].options.selectedIndex].value;
+			dc.aWE.value=da[8].value;
+			if(da[8].value=="-") { da[8].value=" "; } else { da[8].value = " ("+da[8].value+")"; }
+			if(da[8].value!="-"){
+				ds["wRating"].innerText=da[8].value;showInd[0]=true;
+				}
+			dc.aBE.value=da[9].value;
+			if(da[9].value=="-") { da[9].value=" "; } else { da[9].value = " ("+da[9].value+")"; }
+			if(da[9].value!="-"){
+				ds["bRating"].innerText=da[9].value;showInd[1]=true;
+				}
+			var daFlag=da[10].value;
+			if(daFlag=="?"){daFlag="xx";}
+			dc.aWN.value=da[10].value;
+			if(daFlag!="?"){
+				ds["wFlag"].src="_program/_icons/X.gif";
+				ds["wFlag"].src="_program/_flags/"+daFlag+".gif";
+				var fTitle="";
+				for(i=0;i<woc.length;i++){
+					if(daFlag==woc[i]) { fTitle=won[i]; }
+					}
+				ds["wFlag"].title=fTitle;
+				showInd[0]=true;
+				}
+			var daFlag=da[11].value;
+			if(daFlag=="?"){daFlag="xx";}
+			dc.aBN.value=da[11].value;
+			if(daFlag!="?"){
+				ds["bFlag"].src="_program/_icons/X.gif";
+				ds["bFlag"].src="_program/_flags/"+daFlag+".gif";
+				var fTitle="";
+				for(i=0;i<woc.length;i++){
+					if(daFlag==woc[i]) { fTitle=won[i]; }
+					}
+				ds["bFlag"].title=fTitle;
+				showInd[1]=true;
+				}
+
+
+			if(showInd[0]){ds["indW"].src=pf+"wp.gif";}
+			if(showInd[1]){ds["indB"].src=pf+"p.gif";}
+
+			window.opener.updateTagInformation();
+			window.close();
+			return false;
+			}
+		window.opener.focus();
+		window.close();
+		return false;
+		}
+
+	var fs='';
+	fs+='<form name="annoform" onsubmit="return saveAndClose()">';
+	fs+='<table cellpadding=0 cellspacing=0 border=0 class=panel style="position:absolute\;top:0px\;left:0px">';
+	fs+='<tr><td rowspan=16>&nbsp;&nbsp;</td><td colspan=2>&nbsp;</td><td rowspan=16>&nbsp;&nbsp;&nbsp;</td></tr>';
+	fs+='<tr><td class=daco align=right>Event&nbsp;&nbsp;</td><td><input onfocus="cf(this)" onblur="vf(this)" value="'+dc.aE.value+'" class=lico style="width:150px"></td></tr>';
+	fs+='<tr><td class=daco align=right>Site&nbsp;&nbsp;</td><td><input onfocus="cf(this)" onblur="vf(this)" value="'+dc.aS.value+'" class=lico style="width:150px"></td></tr>';
+	fs+='<tr><td class=daco align=right>Date&nbsp;&nbsp;</td><td><input onfocus="cf(this)" onblur="vf(this)" value="'+dc.aD.value+'" class=lico style="width:94px"><button type=button name="getdate" style="position:relative\;left:3px\;width:54px\;height:22px;font-size:12px;" class=daco value="Today" onclick="getDate()" onmousedown="this.firstChild.style.top=0\;this.firstChild.style.left=1" onmouseup="this.firstChild.style.top=-1\;this.firstChild.style.left=0\;this.blur()"><span style="position:relative\;top:-1px">Today</span></button></td></tr>';
+	fs+='<tr><td class=daco align=right>Round&nbsp;&nbsp;</td><td><input onfocus="cf(this)" onblur="vf(this)" value="'+dc.aR.value+'" class=lico style="width:150px"></td></tr>';
+	fs+='<tr><td class=daco align=right>White&nbsp;&nbsp;</td><td><input onfocus="cf(this)" onblur="vf(this)" value="'+dc.aW.value+'" class=lico style="width:150px"></td></tr>';
+	fs+='<tr><td class=daco align=right>Black&nbsp;&nbsp;</td><td><input onfocus="cf(this)" onblur="vf(this)" value="'+dc.aB.value+'" class=lico style="width:150px"></td></tr>';
+	fs+='<tr><td class=daco align=right>Result&nbsp;&nbsp;</td><td>';
+	fs+='<select class=lico name=res style="width:150px\;font-size:12px\;margin-top:2px\;margin-bottom:2px">';
+	var sva = new Array("1-0","0-1","1/2-1/2","*");
+	for(i=0;i<sva.length;i++){
+		fs+='<option value="'+sva[i]+'"';
+		if(sva[i]==dc.aRe.value) { fs+=' selected'; }
+		fs+='>'+sva[i]+'</option>';
+		}
+	fs+='</select></td></tr>';
+	fs+='<tr><td colspan=2>&nbsp;</td></tr>';
+	fs+='<tr><td class=daco nowrap align=right>White Elo&nbsp;&nbsp;</td><td><input name="elo" onfocus="cf(this)" onblur="vf(this)" value="'+dc.aWE.value+'" class=lico style="width:150px"></td></tr>';
+	fs+='<tr><td class=daco nowrap align=right>Black Elo&nbsp;&nbsp;</td><td><input name="elo" onfocus="cf(this)" onblur="vf(this)" value="'+dc.aBE.value+'" class=lico style="width:150px"></td></tr>';
+	fs+='<tr><td class=daco nowrap align=right>White Nationality&nbsp;&nbsp;</td><td><select class=lico style="width:150px\;font-size:12px\;margin-top:3px\;margin-bottom:2px">'+wSel+'</select></td></tr>';
+	fs+='<tr><td class=daco nowrap align=right>Black Nationality&nbsp;&nbsp;</td><td><select class=lico style="width:150px\;font-size:12px\;margin-top:2px\;margin-bottom:2px">'+bSel+'</select></td></tr>';
+	fs+='<tr><td colspan=2>&nbsp;</td></tr>';
+	fs+='<tr><td class=daco>&nbsp;</td><td><input class=daco name="submitform" type=submit value="Save and close" onmouseup="this.blur()" style="width:150px"></td></tr>';
+	fs+='<tr><td colspan=2>&nbsp;</td></tr>';
+	fs+='</form></table>';
+
+	document.write(fs);
+
+	}
+</script>
+</body></html>

@@ -1,0 +1,694 @@
+<html><head><title>ChessPlayer v2.2 by Brothercake</title><meta http-equiv="imagetoolbar" content="no"><meta name="MSSmartTagsPreventParsing" content="true"><style>div{font-size:17px;}.message{font-size:13px;}</style><script language="javascript">var globalOffset = 0;</script>
+<script language="javascript1.2">
+//CPGv2.1*************************************************************************************
+
+
+/********************p*o*r*t*n*m*b*v*q*w*k*l*********************\
+|*                                                              *|
+|*              Chess Player v2.2 by Brothercake                *|
+|*                 http://www.brothercake.com/                  *|
+|*                                                              *|
+\****************************************************************/
+
+
+//********************************************************************************************
+//*** BOARD VARIABLES - [Q] indicates a value which can also be set in the query string ******
+
+var lightCOLOR="#eacda5";			// [Q] page backgrounds and button text
+var darkCOLOR="#9d7752";			// [Q] light backgrounds and buttons
+var borderCOLOR="#000000";			// [Q] board-border and text in lightCOLOR forms
+var boardBACKING="#FFFF99";			// [Q] board area background color
+var whiteSQUARES="#ffffff";			// [Q] white square colour or image
+var blackSQUARES="#000000";			// [Q] black square colour or image
+var shadowCOLOR="#5a5a5a";			// [Q] shadow color on active chess piece (ie5.5+ only)
+
+var squareSIZE=35;					// [Q] square size (default + user controlled)
+var pieceFOLDER="standard";			// [Q] pieces-folder name
+
+var showLEGAL=true;					// [Q] show a marker for legal moves (default + user controlled)
+var blockILLEGAL=true;				// [Q] prevent illegal moves (default + user controlled)
+
+var globalOffset = 10;				// offset by x pixels
+var pageName="chessboard.html";		// filename of this page
+var pagePath="";					// absolute path to ChessPlayer (this url if undefined)
+var playbackSpeed=2000;				// auto playback speed (ms)
+var showSquareInfo="";				// show "numbers", "names" or "both" in board squares
+var outputToNotepad=false;			// see README.html
+
+var enablePgnImport=true;			// show pgn import module in recorder options (ie5.5+ only)
+var pgnProcess="pgnImport.php";		// which server-script to use
+
+
+// help menu pages
+var basicHELP="http://www.chessclub.demon.co.uk/tutorial/beginner/intro/intro.htm";
+var advancedHELP="http://www.insight.demon.co.uk/Technical_Articles/techps.htm";
+var openingsHELP="http://homepages.ed.ac.uk/chess/ChessTutor/openings.html";
+var fenHELP="http://www.rhrk.uni-kl.de/~wehner/chess/fentxt.html";
+var pgnHELP="http://pgn.freeservers.com/Standard.txt";
+
+
+//********************************************************************************************
+//********************************************************************************************
+
+var sqS=squareSIZE;
+var lC=lightCOLOR;
+var dC=darkCOLOR;
+var bC=borderCOLOR;
+var wQ=whiteSQUARES;
+var bQ=blackSQUARES;
+
+//*** query string function by Dave Clark - http://www.daveclarkconsulting.com/ **************
+
+var ary,qStr;
+function getQuery(aryQ){
+	if(location.search){
+		if(aryQ){
+			var wary=window.location.search.substr(1);
+			for(var j=0;j<2;j++){
+				wary=wary.replace('*cpg*','');
+				}
+				ary=wary.split("&");
+				}
+			for(var i=0;i<ary.length;i++){
+				ary[i]=ary[i].split("=");
+				}
+			qStr=new Array();
+			for (i=0;i<ary.length;i++){
+				ary[i][0]=ary[i][0].replace(/\+/g," ");
+				ary[i][0]=unescape(ary[i][0]);
+				ary[i][1]=ary[i][1].replace(/\+/g," ");
+				ary[i][1]=unescape(ary[i][1]);
+				qStr[ary[i][0]]=ary[i][1];
+				}
+			if(ie5&&aryQ=='style'){
+				if(qStr['lightCOLOR']){lC="#"+qStr['lightCOLOR'];}
+				if(qStr['darkCOLOR']){dC="#"+qStr['darkCOLOR'];}
+				if(qStr['borderCOLOR']){bC="#"+qStr['borderCOLOR'];}
+				if(qStr['whiteSQUARES']){wQ="#"+qStr['whiteSQUARES'];}
+				if(qStr['blackSQUARES']){bQ="#"+qStr['blackSQUARES'];}
+				if(qStr['boardBACKING']){boardBACKING="#"+qStr['boardBACKING'];}
+				if(qStr['shadowCOLOR']){shadowCOLOR="#"+qStr['shadowCOLOR'];}
+				}
+			}
+		}
+
+//********************************************************************************************
+
+//sniffer code
+var exclude=true;
+var agt=navigator.userAgent.toLowerCase();
+var ie5=false;
+var ns6=false;
+var dom=false;
+if (typeof document.all!="undefined"&&typeof document.getElementById!="undefined"&&typeof window.opera=="undefined"){
+	if(agt.indexOf("win")!=-1){
+		window.defaultStatus="Loading ...";
+		ie5=true;
+		exclude=false;
+		dom=true;
+		var dog=document.getElementById;
+		}
+	}
+var ie5p=false;
+if(ie5&&(agt.indexOf("msie 5.5")!=-1||agt.indexOf("msie 6")!=-1)){ie5p=true;}
+
+
+// control panel style properties
+getQuery('style');
+var sty='';
+sty+='<style>';
+sty+='.lico \{color:'+borderCOLOR+'\;background-color:'+lC+'\;border-color:'+lC+'\;\}';
+var inlw=412;if(ns6){inlw=428;}
+sty+='.inlico \{width:'+inlw+'px\;color:'+borderCOLOR+'\;background-color:'+lC+'\;border-color:'+lC+'\;\}';
+var bordCol=lC;
+sty+='.daco \{cursor:default;color:'+lC+'\;background-color:'+dC+'\;border-color:'+bordCol+'\;font-size:13px\;font-weight:bold\;font-family:comic sans ms,arial\;\}';
+sty+='.panel \{background-color:'+dC+'\;}';
+sty+='.fImg \{position:relative\;top:2px\;\}';
+if(globalOffset<0){globalOffset=0;}
+
+sty+='#controls \{position:absolute\;top:'+globalOffset+'px\;left:'+globalOffset+'px\;\}';
+
+var bst="border:2px outset "+lC;if(window.name&&window.name=="chessWin"){bst="border:2px groove "+dC;}
+var bsPos=globalOffset;
+
+if(window.name&&window.name=="chessWin"){bsPos=0;}
+sty+='#controls \{top:'+bsPos+'px\;left:'+bsPos+'px\;'+bst+'\;\}';
+sty+='.insetborder \{border:2px inset '+lC+'\;background-color:'+boardBACKING+'\;\}';
+
+sty+='</style>';
+document.open();
+if(ie5) { document.write(sty); }
+document.close();
+
+var docLoc = document.location.href;
+var live=true;
+if(docLoc.indexOf("http://")==-1) { live=false; }
+
+
+//pieceFOLDER abbreviation
+var pf=pieceFOLDER+"/";
+
+var aE="?";var aS="?";var aD="?";var aR="?";
+var aW="?";var aB="?";var aRe="*";
+var aWN="?";var aWE="-";
+var aBN="?";var aBE="-";
+var pD=0;var gaC="";
+
+getQuery(true);
+
+if (location.search&&ie5){
+
+	// square size variable
+	if (qStr['size']){sqS=parseInt(qStr['size']);}
+
+	// game details
+	if (qStr['Event']){aE=qStr['Event'];if(aE!="?"){document.title="ChessPlayer - "+aE;}pD++;}
+	if (qStr['Site']){aS=qStr['Site'];pD++;}
+	if (qStr['Date']){aD=qStr['Date'];pD++;}
+	if (qStr['Round']){aR=qStr['Round'];pD++;}
+	if (qStr['White']){aW=qStr['White'];pD++;}
+	if (qStr['Black']){aB=qStr['Black'];pD++;}
+	if (qStr['Result']){aRe=qStr['Result'];pD++;}
+	if (qStr['WhiteElo']){aWE=qStr['WhiteElo'];pD++;}
+	if (qStr['BlackElo']){aBE=qStr['BlackElo'];pD++;}
+	if (qStr['WhiteNationality']){aWN=qStr['WhiteNationality'];pD++;}
+	if (qStr['BlackNationality']){aBN=qStr['BlackNationality'];pD++;}
+
+	//find game cookie details
+	if(qStr['cookie']){gaC=qStr['cookie'];}
+
+	//if alternative piece set specified
+	if (qStr['pieces']){
+		pf=qStr['pieces']+"/";
+		}
+
+	}
+
+
+
+
+</script>
+
+
+
+
+
+</head>
+
+<script language="javascript">
+document.write('<body marginwidth='+globalOffset+' marginheight='+globalOffset+' onload="if(!exclude){setP(\'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1\')}">');
+
+
+
+var exclude=true;
+var agt=navigator.userAgent.toLowerCase();
+if(typeof ie5!="undefined" && ie5==true) { exclude=false; }
+
+var ns4=false;
+if (typeof document.layers!="undefined"){
+	exclude=true;
+	}
+
+if (agt.indexOf('webtv')!=-1){ exclude=true; }
+if(agt.indexOf("win")==-1) { exclude=true; }
+
+if(exclude) { document.location = "_program/error.html"; }
+
+//if inside custom window, find chrome sizes
+var fww,fwh,chrW,chrH,boW,boH;
+if(!exclude&&window.name&&window.name=="chessWin"){
+		if(ie5){
+			window.resizeTo(200,200);
+			fww=window.document.body.clientWidth;
+			fwh=window.document.body.clientHeight;
+			chrW=200-fww;
+			chrH=200-fwh+20;
+			boW=(14*sqS)+2;
+			if(boW<492){boW=492;}
+			boH=(8*sqS)+61;
+			if(boH<341){boH=341;}
+			window.resizeTo(184+boW+chrW,133+boH+chrH);
+			}
+		}
+
+
+</script>
+
+<!--[if gte IE 5]>
+<script language="javascript1.3" src="_program/chess.js"></script>
+
+
+
+<table cellpadding=5 cellspacing=0 border=0 id="controls">
+<tr>
+<td class=panel style="cursor:default" align=right>
+
+<script language="javascript1.3">
+
+var fsz=13;if(ns4){fsz=14;}
+
+var ply='';
+var txt;
+var npos=new Array(35,-1);
+var striph=26;
+
+var cNames=new Array('?','Angola','Antigua And Barbuda','Argentina','Armenia','Australia','Austria','Bahamas','Bahrain','Bangladesh','Barbados','Belarus','Belgium','Bertrueda','Bolivia','Brazil','Brunei Darussalam','Canada','Chile','China','Colombia','Costa Rica','Cuba','Cyprus','Czech Republic','Denmark','Dominican Republic','Ecuador','Egypt','Estonia','Evil Empire','Faroe Islands','Finland','France','Germany','Great Britain','Greece','Guam','Guatemala','Honduras','Hong Kong','Hungary','Iceland','India','Indonesia','Iran','Iraq','Ireland','Israel','Italy','Jamaica','Japan','Jordan','Kazakhstan','Kenya','Korea','Kuwait','Latvia','Lebanon','Lithuania','Macau','Malawi','Malaysia','Malta','Mauritius','Mexico','Morocco','Mozambique','Namibia','Netherlands','New Zealand','Nicaragua','Nigeria','Northern Mariana Islands','Norway','Pakistan','Panama','Paraguay','Peru','Philippines','Poland','Portugal','Puerto Rico','Qatar','Rebel Alliance','Romania','Russian Federation','St Vincent & The Grenadines','Saudi Arabia','Singapore','Slovakia','Slovenia','Solomon Islands','South Africa','Spain','Sri Lanka','Suriname','Sweden','Switzerland','Taiwan','Thailand','Trinidad And Tobago','Turkey','Uganda','Ukraine','United Arab Emirates','United Kingdom','United States','Uruguay','Venezuela','Virgin Islands','Yugoslavia','Zambia','Zimbabwe');
+var cCode=new Array('?','ao','ag','ar','am','au','at','bs','bh','bd','bb','by','be','bm','bo','br','bn','ca','cl','cn','co','cr','cu','cy','cz','dk','do','ec','eg','ee','ev','fo','fi','fr','de','gb','gr','gu','gt','hn','hk','hu','is','in','id','ir','iq','ie','il','it','jm','jp','jo','kz','ke','kr','kw','lv','lb','lt','mo','mw','my','mt','true','mx','ma','mz','na','nl','nz','ni','ng','mp','no','pk','pa','py','pe','ph','pl','pt','pr','qa','ra','ro','ru','vc','sa','sg','sk','si','sb','za','es','lk','sr','se','ch','tw','th','tt','tr','ug','ua','ae','uk','us','uy','ve','vi','yu','zm','zw');
+var fTitle="";
+
+ply+=tb+'0 width=466><tr><td><img src="'+imgs["X"].src+'" width=1 height='+striph+' alt="" border=0></td><td nowrap align=right>';
+
+ply+='<span style="position:absolute\;clip:rect(0px,230px,35px,0px)\;left:'+npos[0]+'px\;top:'+npos[1]+'px\;width:231px">';
+ply+=tb+'0 align=left><tr>';
+var pIc=imgs["X"].src;
+if(aW!="?"||aWE!="-"||aWN!="?"){pIc=imgs["wp"].src;}
+ply+='<td><img src="'+pIc+'" id="indW" width=35 height=35 alt="" border=0 hspace=0></td>';
+ply+='<td nowrap>';
+ply+='<span style="position:relative\;top:2px">';
+txt=aWN;
+if(txt=="?"){txt="xx";}
+else{
+	fTitle="";
+	for(i=0;i<cCode.length;i++){
+		if(txt==cCode[i]){fTitle=cNames[i];}
+		}
+	}
+ply+='<img src="_program/_flags/'+txt+'.gif" name="white-flag" id="wFlag" hspace=4 width=21 height=14 title="'+fTitle+'" alt="" border=0 class="fImg">&nbsp;';
+txt=aW;
+if(txt=="?"){txt=" ";}
+ply+='<span class=daco style="font-size:'+fsz+'px" id="wPlayer">'+txt+'</span> ';
+txt='('+aWE+')';
+if(txt=="(-)"){txt=" ";}
+ply+=' <span class=daco style="font-size:'+fsz+'px" id="wRating">'+txt+'</span>';
+ply+='</span>';
+ply+='</td>';
+ply+='</tr>'+stb;
+ply+='</span>';
+
+
+ply+='<span style="position:absolute\;clip:rect(0px,230px,35px,0px)\;left:'+(npos[0]+240)+'px\;top:'+npos[1]+'px\;width:231px">';
+ply+=tb+'0 align=left><tr>';
+var pIc=imgs["X"].src;
+if(aB!="?"||aBE!="-"||aBN!="?"){pIc=imgs["p"].src;}
+ply+='<td><img src="'+pIc+'" id="indB" width=35 height=35 alt="" border=0 hspace=0></td>';
+ply+='<td nowrap>';
+ply+='<span style="position:relative\;top:2px">';
+txt=aBN;
+if(txt=="?"){txt="xx";}
+else{
+	fTitle="";
+	for(i=0;i<cCode.length;i++){
+		if(txt==cCode[i]){fTitle=cNames[i];}
+		}
+	}
+ply+='<img src="_program/_flags/'+txt+'.gif" name="black-flag" id="bFlag" hspace=4 width=21 height=14 title="'+fTitle+'" alt="" border=0 class="fImg">&nbsp;';
+txt=aB;
+if(txt=="?"){txt=" ";}
+ply+='<span class=daco style="font-size:'+fsz+'px" id="bPlayer">'+txt+'</span> ';
+txt='('+aBE+')';
+if(txt=="(-)"){txt=" ";}
+ply+=' <span class=daco style="font-size:'+fsz+'px" id="bRating">'+txt+'</span>';
+ply+='</span>';
+ply+='</td>';
+ply+='</tr>'+stb;
+ply+='</span>';
+
+
+
+ply+=ctb;
+
+document.write(ply);
+
+</script></td>
+
+<form name=chessform onsubmit="return addAnnotation()">
+
+<td class=panel align=center rowspan=4 valign=top width=158>
+
+<input type=hidden name=panels value="true,true,true,true,true">
+<input type=hidden name=aE value="?">
+<input type=hidden name=aS value="?">
+<input type=hidden name=aD value="?">
+<input type=hidden name=aR value="?">
+<input type=hidden name=aW value="?">
+<input type=hidden name=aB value="?">
+<input type=hidden name=aRe value="*">
+<input type=hidden name=aWE value="-">
+<input type=hidden name=aBE value="-">
+<input type=hidden name=aWN value="?">
+<input type=hidden name=aBN value="?">
+<input type=hidden name=gp value="0">
+<input type=hidden name=ls value=-1>
+<input type=hidden name=lss value=-1>
+<input type=hidden name=lsss value=-1>
+<input type=hidden name=info value="">
+<input type=hidden name=pieceid value="">
+<input type=hidden name=vbb value="">
+<input type=hidden name=vbw value="">
+<input type=hidden name=kxinfo value="">
+<input type=hidden name=kyinfo value="">
+<input type=hidden name=entry value="">
+<input type=hidden name=wccl size=14 value="true">
+<input type=hidden name=wccr size=14 value="true">
+<input type=hidden name=bccl size=14 value="true">
+<input type=hidden name=bccr size=14 value="true">
+<input type=hidden name=ctm value="w">
+<input type=hidden name=enp value="-">
+<input type=hidden name=hmc value="1">
+<input type=hidden name=fmc value="0">
+<input type=hidden name=vw value="true">
+<input type=hidden name=vr value="0">
+
+<script language="javascript1.3">
+var hds='';
+hds+='<input type=button name="andan" onclick="gameAnnotation()" class=daco style="position:absolute;left:5px\;top:5px\;width:28px\;height:28px" title="Annotate this game" onmouseup="this.blur()" value="@">';
+
+hds+='<div id="cog-hide" style="display:none;position:relative;left:0px\;top:1px;border:1px inset '+lC+';width:156px;">';
+hds+=tb+'4 width="100%"><tr><td>';
+hds+='<img src="_program/_icons/contracted.gif" onclick="retract(this)" onmousedown="this.style.cursor=\'hand\'" id="cogtab-hide" title="Expand" style="filter:alpha(opacity=64)\;cursor:hand\;border:1px outset '+lC+'" hspace=1 width=141 height=8 alt="" border=0>';
+hds+=ctb;
+hds+='</div>';
+
+hds+='<div style="cursor:default\;display:inline\;position:relative\;left:0px\;top:1px\;width:156px\;border:1px inset\;border-color:'+lC+'" id="cog">';
+hds+='<img src="_program/_icons/expanded.gif" onclick="retract(this)" onmousedown="this.style.cursor=\'hand\'" id="cog-tab" title="Contract" style="filter:alpha(opacity=64)\;cursor:hand\;position:relative\;top:-1px\;border:1px outset '+lC+'" hspace=1 width=141 height=8 alt="" border=0>';
+document.write(hds);
+</script>
+
+<table border=0 cellspacing=0 cellpadding=1 width="100%">
+<script language="javascript1.3">if(!ie5){document.write('<tr><td colspan=5><img src="_program/_icons/X.gif" width=1 height=3 alt="" border=0></td></tr>');}</script>
+<tr><td align=center colspan=5>
+<select name=help onchange="launchHelp(this.options[this.options.selectedIndex].value)" class=lico style="font-size:11px;font-family:comic sans ms,arial;width:143px;">
+<option value="">HELP MENU</option>
+<option value="program">Program help</option>
+<option value="basic">Basic chess help</option>
+<option value="advanced">Advanced chess help</option>
+<option value="">------------------------</option>
+<option value="openings">Chess Openings</option>
+<option value="pgn">PGN Standard</option>
+</select></td>
+</tr>
+<tr><td colspan=5><img src="_program/_icons/X.gif" width=1 height=3 alt="" border=0></td></tr>
+<tr>
+<td align=center colspan=5>
+<select name=scale class=lico style="font-size:11px;font-family:comic sans ms,arial;width:143px;" onchange="scaleReload()">
+<option value=0>RESIZE BOARD TO..</option>
+<option value=0.6>60%</option>
+<option value=0.7>70%</option>
+<option value=0.8>80%</option>
+<option value=0.9>90%</option>
+<option value=1>100%</option>
+<option value=1.1>110%</option>
+<option value=1.2>120%</option>
+<option value=1.3>130%</option>
+<option value=1.4>140%</option>
+<option value=1.5>150%</option>
+</select></td>
+</tr>
+<tr><td colspan=5><img src="_program/_icons/X.gif" width=1 height=3 alt="" border=0></td></tr>
+<tr>
+<td align=center colspan=5>
+<table border=0 cellspacing=0 cellpadding=0><tr>
+<td><input type=button value="           " name="newg" class=daco style="width:85px;" onclick="presetP('new')" onmouseup="this.blur()" title="New game"></td>
+<td><img src="'+imgs["X"].src+'" width=3 height=2 alt="" border=0></td>
+<td><input type=button value="        " name="clrb" class=daco style="width:55px;" onclick="presetP('clear')" onmouseup="this.blur()" title="Clear board"></td>
+</tr></table></td>
+</tr>
+<tr>
+<td colspan=5 align=left><table border=0 cellspacing=0 cellpadding=0 class=daco><tr>
+<td><input type=checkbox name="slm" class=daco onmouseup="this.blur()" onclick="if(this.checked==true){showLEGAL=true}else{showLEGAL=false}"></td>
+<td><img src="_program/_icons/X.gif" width=3 height=2 alt="" border=0></td>
+<td><span class=daco style="font-size:12px" onclick="if(!showLEGAL){showLEGAL=true;dc['slm'].checked=true;}else{showLEGAL=false;dc['slm'].checked=false;}">show legal moves</span></td>
+</tr><tr>
+<td><input type=checkbox name="dim" class=daco onmouseup="this.blur()" onclick="if(this.checked==true){blockILLEGAL=true}else{blockILLEGAL=false}"></td>
+<td><img src="_program/_icons/X.gif" width=3 height=2 alt="" border=0></td>
+<td><span class=daco style="font-size:12px" onclick="if(!blockILLEGAL){blockILLEGAL=true;dc['dim'].checked=true;}else{blockILLEGAL=false;dc['dim'].checked=false;}">disallow illegal moves</span></td>
+</tr></table></td>
+</tr>
+<tr><td colspan=5><img src="_program/_icons/X.gif" width=1 height=1 alt="" border=0></td></tr>
+</table>
+
+
+<script language="javascript1.3">
+var hds='';
+hds+='</div>';
+
+hds+='<div id="vog-hide" style="display:none;position:relative;top:7px;border:1px inset '+lC+';width:156px;">';
+hds+=tb+'4 width="100%"><tr><td>';
+hds+='<img src="_program/_icons/contracted.gif" onclick="retract(this)" onmousedown="this.style.cursor=\'hand\'" id="vogtab-hide" title="Expand" style="filter:alpha(opacity=64)\;cursor:hand\;border:1px outset '+lC+'" hspace=1 width=141 height=8 alt="" border=0>';
+hds+=ctb;
+hds+='</div>';
+
+hds+='<div style="cursor:default\;display:inline\;position:relative\;left:0px\;top:7px\;width:156px\;border:1px inset\;border-color:'+lC+'" id="vog">';
+hds+='<img src="_program/_icons/expanded.gif" onclick="retract(this)" onmousedown="this.style.cursor=\'hand\'" id="vog-tab" title="Contract" style="filter:alpha(opacity=64)\;cursor:hand\;position:relative\;top:-1px\;border:1px outset '+lC+'" hspace=1 width=141 height=8 alt="" border=0>';
+document.write(hds);
+</script>
+
+
+<table border=0 cellspacing=0 cellpadding=1 width="100%">
+<script language="javacsript1.2">if(!ie5){document.write('<tr><td colspan=5><img src="'+imgs["X"].src+'" width=1 height=2 alt="" border=0></td></tr>');}</script>
+<tr>
+<td align=center colspan=5><input type=button value="                    " name="sv" title="Switch viewpoint" class=daco style="width:143px;" onclick="if(document.forms['chessform']['vw'].value=='true'){inputV='b'}if(document.forms['chessform']['vw'].value=='false'){inputV=''}flipBoard();flipCovers()" onmouseup="this.blur()"></td>
+</tr>
+<tr><td colspan=5><img src="_program/_icons/X.gif" width=1 height=1 alt="" border=0></td></tr>
+<tr>
+<td align=center colspan=5>
+
+<script language="javascript1.3">
+var sls='';
+sls+='<select name=reco onchange="advancedControls(this.options[this.options.selectedIndex].value)" class=lico style="font-size:11px\;font-family:comic sans ms,arial,arial\;width:143px\;">';
+sls+='<option value="">RECORDER OPTIONS</option>';
+sls+='<option value="fen" style="color:'+lC+'">export (FEN positions)</option>';
+sls+='<option value="smith" style="color:'+lC+'">export (Smith notation)</option>';
+//sls+='<option value="pgn">export (PGN notation)</option>';
+sls+='<option value="query" style="color:'+lC+'">export (Player format)</option>';
+sls+='<option value="">------------------------------</option>';
+sls+='<option value="queryin">import (Player format)</option>';
+if(ie5p&&enablePgnImport) { sls+='<option value="pgnin">import (PGN games)</option>'; }
+sls+='<option value="">------------------------------</option>';
+sls+='<option value="save" style="color:'+lC+'">Save this game</option>';
+//find existing saved games
+var sgNum=0;
+var sk=document.cookie.split(";");
+for(s=0;s<sk.length;s++){
+	sk[s]=unescape(sk[s]);
+	sk[s]=sk[s].split("game=");
+	sk[s][0]=sk[s][0].replace(/[\ \=]/g,"");
+	sk[s][1]="game="+sk[s][1];
+	//alert(sk[s][0]+"\n"+sk[s][1]);
+	//if cookie name matches format
+	if(sk[s][0].indexOf("*cpg*")!=-1){
+		savN[sgNum]=sk[s][0].replace("*cpg*","");
+		savN[sgNum]=sk[s][0].replace("*cpg*","");
+		savG[sgNum]=sk[s][1];
+		sgNum++;
+		}
+	}
+//write existing games to form
+if(savN.length>0){
+	sls+='<option value="">Load saved game:</option>';
+	for(sn=0;sn<savN.length;sn++){
+		var writeSC=savN[sn].replace(/[\_]/g," ")
+		writeSC=writeSC.replace("emag","game");
+		sls+='<option value="*cpg*'+savN[sn]+'">&nbsp;&nbsp;&nbsp;&nbsp;'+(sn+1)+'. '+writeSC+'</option>';
+		}
+	if(gaC!=""){
+		var writeGC=gaC.replace("*cpg*","");
+		writeGC=writeGC.replace("emag","game");
+		writeGC=writeGC.replace(/[\_]/g," ");
+		sls+='<option value="delete">Delete \"'+writeGC+'\"</option>';
+		}
+	}
+sls+='</select></td>';
+sls+='</tr>';
+document.write(sls);
+</script>
+<tr><td colspan=5><img src="_program/_icons/X.gif" width=1 height=2 alt="" border=0></td></tr>
+<script language="javascript1.3">
+var sls='';
+sls+='<tr>';
+sls+='<td colspan=5 align=center>'+tb+'0><tr>';
+sls+='<td align=center><input type=submit name="addan" onclick="addAnnotation()" class=daco style="width:25px\;height:24px\;font-size:12px" value="@" title="Annotate this position" onmouseup="this.blur()"></td>';
+sls+='<td><img src="'+imgs["X"].src+'" width=4 height=2 alt="" border=0></td>';
+sls+='<td align=center><input type=text value="" name="ant" class=lico style="width:114px\;font-size:12px\;cursor:text"></td>';
+sls+='</tr>'+stb+'</td>';
+sls+='</tr>';
+sls+='<tr><td colspan=5><img src="'+imgs["X"].src+'" width=1 height=2 alt="" border=0></td></tr>';
+if(ie5){document.write(sls);}
+</script>
+</table>
+
+</div>
+
+
+<script language="javascript1.3">
+var rl='';
+
+rl+='<div id="rog-hide" style="display:none;position:relative;top:13px;border:1px inset '+lC+';width:156px;">';
+rl+=tb+'4 width="100%"><tr><td>';
+rl+='<img src="_program/_icons/contracted.gif" onclick="retract(this)" onmousedown="this.style.cursor=\'hand\'" id="rogtab-hide" title="Expand" style="filter:alpha(opacity=64)\;cursor:hand\;border:1px outset '+lC+'" hspace=1 width=141 height=8 alt="" border=0>';
+rl+=ctb;
+rl+='</div>';
+
+rl+='<div style="cursor:default\;display:inline\;position:relative\;left:0px\;top:13px\;width:156px\;border:1px inset\;border-color:'+lC+'" id="rog">';
+rl+='<img src="_program/_icons/expanded.gif" onclick="retract(this)" onmousedown="this.style.cursor=\'hand\'" id="rog-tab" title="Contract" style="filter:alpha(opacity=64)\;cursor:hand\;position:relative\;top:-1px\;border:1px outset '+lC+'" hspace=1 width=141 height=8 alt="" border=0>';
+document.write(rl);
+</script>
+
+<table border=0 cellspacing=0 cellpadding=1 width="100%" id="recordertable">
+<script language="javacsript1.2">if(!ie5){document.write('<tr><td colspan=5><img src="'+imgs["X"].src+'" width=1 height=2 alt="" border=0></td></tr>');}</script>
+<tr>
+<td colspan=5 align=center><table border=0 cellspacing=0 cellpadding=0><tr>
+<td align=center><input type=text size=5 value=".. /.." name="gpv" class=daco style="width:57px;font-size:12px" onfocus="this.blur()"></td>
+<td><img src="_program/_icons/X.gif" width=4 height=2 alt="" border=0></td>
+<td align=center><input type=button value="   " name="b" title="Beginning" class=daco style="width:21px" onclick="recoMove(0)" onmouseup="this.blur()"></td>
+<td><img src="'+imgs["X"].src+'" width=3 height=2 alt="" border=0></td>
+<td align=center><input type=button value="  " name="rw" title="Previous move" class=daco style="width:16px" onclick="recoMove('rw')" onmouseup="this.blur()"></td>
+<td><img src="_program/_icons/X.gif" width=2 height=2 alt="" border=0></td>
+<td align=center><input type=button value="  " name="ff" title="Next move" class=daco style="width:16px" onclick="recoMove('ff')" onmouseup="this.blur()"></td>
+<td><img src="'+imgs["X"].src+'" width=3 height=2 alt="" border=0></td>
+<td align=center><input type=button value="   " name="e" title="Last move" class=daco style="width:21px" onclick="recoMove('e')" onmouseup="this.blur()"></td>
+</tr></table></td>
+</tr>
+<tr>
+<td colspan=5 align=center><table border=0 cellspacing=0 cellpadding=0><tr>
+<td><input type=button value="          " name="ato" class=daco style="width:70px;" onclick="startRecording()" onmouseup="this.blur()" title="Record"></td>
+<td><img src="_program/_icons/X.gif" width=3 height=2 alt="" border=0></td>
+<td><input type=button value="         " name="rp" class=daco style="width:70px;" onclick="playRecorder(true)" onmouseup="this.blur()" title="Play through"></td>
+</tr></table></td>
+</tr>
+<tr><td colspan=5><img src="_program/_icons/X.gif" width=1 height=2 alt="" border=0></td></tr>
+</table>
+
+</div>
+
+
+<script language="javascript1.3">
+var imgH=(8*sqS)+61;if (ns4){imgH=(8*sqS)+58;}
+if(imgH<341){imgH=341;}
+var imgW=(14*sqS)+2;
+if(imgW<492){imgW=492;}
+var rl='';
+
+rl+='<div id="mog-hide" style="display:none;position:relative;top:19px;border:1px inset '+lC+';width:156px;">';
+rl+=tb+'4 width="100%"><tr><td>';
+rl+='<img src="_program/_icons/contracted.gif" onclick="retract(this)" onmousedown="this.style.cursor=\'hand\'" id="mogtab-hide" title="Expand" style="filter:alpha(opacity=64)\;cursor:hand\;border:1px outset '+lC+'" hspace=1 width=141 height=8 alt="" border=0>';
+rl+=ctb;
+rl+='</div>';
+
+rl+='<div style="cursor:default\;display:inline\;position:relative\;left:0px\;top:19px\;width:156px\;border:1px inset\;border-color:'+lC+'" id="mog">';
+rl+='<img src="_program/_icons/expanded.gif" vspace=3 onclick="retract(this)" onmousedown="this.style.cursor=\'hand\'" id="mog-tab" title="Contract" style="filter:alpha(opacity=64)\;cursor:hand\;position:relative\;top:1px\;border:1px outset '+lC+'" hspace=1 width=141 height=8 alt="" border=0>';
+rl+='<div id="movetable" style="margin-top:6px\;height:'+(88+(imgH-341))+'px\;overflow-y:scroll\;scrollbar-base-color:'+dC+'\;scrollbar-arrow-color:'+lC+'">';
+rl+='</div></div>';
+document.write(rl);
+</script>
+
+
+
+</td>
+</tr>
+
+
+<tr>
+<script language="javascript1.3">
+document.open();
+document.write('<td class="insetborder" bgcolor="'+boardBACKING+'">');
+document.write('<img src="'+imgs["X"].src+'" width='+imgW+' height='+imgH+' border=0>');
+document.close();
+</script></td>
+</tr>
+
+
+<tr class=panel>
+<td align=right>
+
+
+<script language="javascript1.3">
+var rl='';
+
+rl+='<div style="height:88px" id="pog-spacer">';
+
+rl+='<style>';
+rl+='.logo\{position:relative\;top:3px\;\}';
+rl+='.message\{position:relative\;top:1px\;\}';
+rl+='</style>';
+if(imgH<332){pabH=332;}
+
+rl+='<div id="pog-hide" style="z-index:10\;display:none;position:absolute\;left:'+(484+((imgW-492)/2))+'px\;top:'+(imgH+arT-20-bsPos)+'px\;border:1px inset '+lC+';width:22px;height:22px">';
+rl+=tb+'1 width="100%"><tr><td align=right>';
+rl+='<img src="_program/_icons/vcontracted.gif" onclick="retract(this)" onmousedown="this.style.cursor=\'hand\'" vspace=4 hspace=4 id="pogtab-hide" title="Expand" style="filter:alpha(opacity=64)\;cursor:hand\;border:1px outset '+lC+'" width=8 height=8 alt="" border=0>';
+rl+=ctb;
+rl+='</div>';
+
+rl+='<div id="pog" style="cursor:default\;display:inline\;position:absolute\;left:'+(6+((imgW-492)/2))+'px\;top:'+(imgH+arT-20-bsPos)+'px\;width:500px\;border:1px inset\;border-color:'+lC+'">';
+rl+=tb+'4><tr><td>';
+document.write(rl);
+</script>
+
+
+<table border=0 cellspacing=0 cellpadding=1>
+<tr>
+<td align=center valign=middle><input type=text name=start size=39 class=inlico style="font-family:arial,sans serif;font-size:12px;" value=""></td>
+<td><img src="_program/_icons/X.gif" width=1 height=2 alt="" border=0></td>
+<td align=center valign=middle><input type=button value="       " name="sp" title="Input position" class=daco style="font-size:12px;width:56px" onclick="if(pla){allReset(false);}setP('custom')" onmouseup="this.blur()"></td>
+<script language="javascript1.3">
+document.write('<td rowspan=2><img src="'+imgs["X"].src+'" width=1 height=1 alt="" border=0></td>');
+document.write('<td rowspan=2 style="cursor:hand"><img src="_program/_icons/vexpanded.gif" onclick="retract(this)" onmousedown="this.style.cursor=\'hand\'" id="pog-tab" title="Contract" style="filter:alpha(opacity=64)\;cursor:hand\;border:1px outset '+lC+'" width=8 height=49 alt="" border=0></td>');
+</script>
+</tr>
+<tr>
+<td align=center valign=middle><input type=text name=current size=39 class=inlico style="font-family:arial,sans serif;font-size:12px;" value="" onfocus="uninit()" onblur="init()"></td>
+<td><img src="_program/_icons/X.gif" width=1 height=2 alt="" border=0></td>
+<td align=center valign=middle><input type=button value="       " name="op" title="Output position" class=daco style="font-size:12px;width:56px" onclick="findPieceIds(true)" onmouseup="this.blur()"></td>
+</tr>
+</table>
+<script language="javascript1.3">
+document.write(ctb);
+</script></td>
+</tr>
+<tr class=daco>
+<td align=center valign=middle class=daco>
+
+
+<script language="javascript1.3">
+document.write('<div id="msgdiv" style="position:absolute;left:-4px;top:'+(imgH+arT+47-bsPos)+'px;">');
+</script>
+<table cellpadding=0 cellspacing=0 border=0 width="100%" class=message>
+<tr><td nowrap valign=top align=center style="text-decoration:none;" id="msg">&nbsp;<span class=daco>ChessPlayer v2.2 by </span><a href="http://www.brothercake.com/chess/" target="_blank" class=daco style="text-decoration:none;cursor:hand">Brothercake</a><span class=daco> in association with </span><a href="http://www.chessworld.net/" target="_blank" class=daco style="text-decoration:none;cursor:hand">ChessWorld.net</a><ilayer id="msg"></ilayer></td></tr>
+</table></div></td></tr></table>
+
+</div></div>
+
+
+<script language="VBScript">
+' plain text document creation
+Sub WriteAndDisplayFile
+	Dim fso: Set fso=CreateObject("Scripting.FileSystemObject")
+
+	Dim strTempName: strTempName=fso.GetTempName()
+	Dim tempFile: Set tempFile=fso.CreateTextFile(strTempName, True, False)
+	' MsgBox "Writing " & chessform.VBOutput.Value & " to " & strTempName
+	tempfile.Write chessform.VBOutput.Value
+	tempFile.Close
+
+	Dim NoteShell
+	Set NoteShell=CreateObject("WScript.Shell")
+	NoteShell.Run "Notepad " & strTempName
+End Sub
+</script>
+
+
+
+<script language="javascript1.3">
+//textarea to pass vbscript variables to js
+var vbt='';
+vbt+='<textarea name="VBOutput" style="display:none"></textarea></form>';
+vbt+='<a id="wadf" language="VBScript" onClick="WriteAndDisplayFile()" style="display:none">WriteAndDisplayFile</a>';
+document.write(vbt);
+</script>
+
+
+
+<![endif]-->
+
+</body></html>
+

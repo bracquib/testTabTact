@@ -1,0 +1,821 @@
+<html><head><meta name="MSSmartTagsPreventParsing" content="TRUE"><title>ChessPlayer - Webmaster's README</title>
+
+<style>
+<!--
+CODE { color:#990000; font-weight:normal; font-family:courier,monotype; }
+.code { color:#990000; font-weight:normal; font-family:courier,monotype; }
+PRE { color:#990000; font-weight:normal; font-family:courier,monotype; }
+.title { font-family:verdana,helvetica; font-size:18px; color:#000000; }
+body { font-family:verdana,helvetica; font-size:13px; color:#000000; }
+p { font-family:verdana,helvetica; font-size:13px; color:#000000; }
+div { font-family:verdana,helvetica; font-size:13px; color:#000000; }
+i { font-family:times new roman,serif; font-size:14px; color:#000055;}
+ul { font-family:verdana,helvetica; font-size:13px; }
+li{ font-family:verdana,helvetica; font-size:13px; }
+ol li{ color:#000000; }
+li p { color:#000000; }
+ol { font-family:verdana,helvetica; font-size:13px; }
+td { font-family:verdana,helvetica; font-size:13px; }
+-->
+</style>
+
+</head>
+<body bgcolor=white>
+
+
+
+<p><span class=title>ChessPlayer v2.2</span> - by <a href="http://www.brothercake.com/" target="_top">brothercake</a>
+
+<p>This guide describes all query string and source-defined variables, with notes on implementation,
+how values are interpreted and how they affect each other.
+
+<p><b>Important note:</b> The fault-tolerance of query string data within this program
+is basically zero; syntax errors could render the board unuseable.
+For this reason, I would discourage you from generating them manually, but rather encourage
+you to consider this documentation a framework for automated process.
+
+
+
+<p><a name="querygame"></a><br><div align=right>
+<a href="#top">top</a> |
+<a href="#querygame">query string game variables</a> |
+<a href="#querystyle">query string style variables</a> |
+<a href="#page">page variables</a> |
+<a href="#examples">query string examples</a> |
+<a href="#performance">performance</a>
+
+</div>
+
+
+<p><br><br><span class=title>Query string game variables</span>
+
+
+<p>These values send game data and metadata to
+the chessboard. The most important ones are:
+
+
+
+<p><table cellpadding=5 cellspacing=0 border=0>
+<tr>
+<td width=100 valign=top style="font-weight:bold">
+
+pos
+
+</td><td>
+
+<code>rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1</code>
+
+
+<p>Send the board a single position; or
+
+</td>
+</tr>
+<tr><td colspan=2>&nbsp;</td></tr>
+<tr>
+<td width=100 valign=top style="font-weight:bold">
+
+game
+
+</td><td>
+
+<code>e2e4,e7e5,g1f3,g8f6,f3e5,d7d6,e5f3,f6e4,d2d4,d6d5,f1d3,f8e7,e1g1,b8c6, f1e1,c8g4,c2c3,f7f5,d1b3,e8g8,b1d2,g8h8,b3b7,f8f6,b7b3,f6g6,d3f1</code>
+
+<p>Send the board a comma-delimited sequence of moves.
+
+<br><br></td>
+</tr>
+<tr><td colspan=2>
+
+<p>You can send either a single position using <b>pos</b>, or a series of moves using <b>game</b>.
+It is not possible to use both in the same query string. With either, you can optionally use:
+
+<br><br></td></tr>
+<tr>
+<td width=100 valign=top style="font-weight:bold">
+
+last
+
+</td><td>
+
+<code>d6c5</code>
+
+<p>The presence of this named pair tells the board to indicate the last move that was made, using
+two red borders. The script is literal about what you define here, and doesn't check whether
+it's consistent with that position; it simply highlights the two squares you specify.
+
+<p>However using <b>last</b> with an input game tells the script to
+load and display from a position other than the start. The end position is probably most useful
+for showing a game in progress, but you can equally use it to specify any one move in the game,
+and the board will load and display from that position.
+
+<br><br></td>
+</tr>
+<tr><td colspan=2>
+
+
+<p>The next group of variables are used for sending PGN annotation information.
+
+<br><br></td></tr>
+<tr>
+<td width=100 valign=top style="font-weight:bold">
+
+Event
+
+</td><td>
+
+<code>Good Side v Dark Side</code>
+
+<p>The PGN [Event ] tag.  This is displayed in the title bar, is user-editable,
+ and is throughput to the export logs.
+
+</td>
+</tr>
+<tr>
+<td width=100 valign=top style="font-weight:bold">
+
+Site
+
+</td><td>
+
+<code>Death Star</code>
+
+<p>The PGN [Site ] tag.  This is user-editable, and is throughput to the export logs.
+
+</td>
+</tr>
+<tr>
+<td width=100 valign=top style="font-weight:bold">
+
+Date
+
+</td><td>
+
+<code>2002.03.24</code>
+
+<p>The PGN [Date ] tag.  This is user-editable, and is throughput to the export logs.
+
+</td>
+</tr>
+<tr>
+<td width=100 valign=top style="font-weight:bold">
+
+Round
+
+</td><td>
+
+<code>3</code>
+
+<p>The PGN [Round ] tag.  This is user-editable, and is throughput to the export logs.
+
+</td>
+</tr>
+<tr>
+<td width=100 valign=top style="font-weight:bold">
+
+White
+
+</td><td>
+
+<code>Obi Wan Kenobi</code>
+
+<p>The PGN [White ] player name tag.  This is user-editable, displayed at
+the top of the chessboard, and throughput to the export logs.
+
+</td>
+</tr>
+<tr>
+<td width=100 valign=top style="font-weight:bold">
+
+Black
+
+</td><td>
+
+<code>Darth Vader</code>
+
+<p>The PGN [Black ] player name tag.  This is user-editable, displayed at the top of the chessboard,
+and throughput to the export logs.
+
+</td>
+</tr>
+<tr>
+<td width=100 valign=top style="font-weight:bold">
+
+Result
+
+</td><td>
+
+<code>*</code>
+
+<p>The PGN [Result ] tag.  This is user-editable, and is throughput to the export logs.
+
+</td>
+</tr>
+<tr>
+<td width=100 valign=top style="font-weight:bold">
+
+WhiteElo
+
+</td><td>
+
+<code>3</code>
+
+<p>An optional PGN tag to indicate the white player's FIDE Elo rating.
+This is user-editable, is displayed at the top of the chessboard, and throughput to the export logs.
+
+</td>
+</tr>
+<tr>
+<td width=100 valign=top style="font-weight:bold">
+
+BlackElo
+
+</td><td>
+
+<code>4</code>
+
+<p>An optional PGN tag to indicate the black player's FIDE Elo rating.
+This is user-editable, is displayed at the top of the chessboard, and throughput to the export logs.
+
+</td>
+</tr>
+<tr>
+<td width=100 valign=top style="font-weight:bold">
+
+WhiteNationality
+
+</td><td>
+
+<code>ra</code>
+
+<p>A proprietary extension to the  PGN standard, this tag indicates the white player's nationality,
+using ISO-3166 country codes. A list of these codes can be found in the
+<code>_program/_flags</code> folder in plain text and Excel spreadsheet format. Not all countries have
+flag icons bundled with the program - those which do are indicated in the spreadsheet.
+This is user-editable, shown with a flag icon at the top of the chessboard, and the country code
+is throughput to the export logs.
+
+</td>
+</tr>
+<tr>
+<td width=100 valign=top style="font-weight:bold">
+
+BlackNationality
+
+</td><td>
+
+<code>ev</code>
+
+<p>A proprietary extension to the  PGN standard, this tag indicates the black player's nationality,
+using ISO-3166 country codes. A list of these codes can be found in the
+<code>_program/_flags</code> folder in plain text and Excel spreadsheet format. Not all countries have
+flag icons bundled with the program - those which do are indicated in the spreadsheet.
+This is user-editable
+This is user-editable, shown with a flag icon at the top of the chessboard, and the country code
+is throughput to the export logs.
+
+</td>
+</tr>
+</table>
+
+
+
+
+<p><a name="querystyle"></a><br><div align=right>
+<a href="#top">top</a> |
+<a href="#querygame">query string game variables</a> |
+<a href="#querystyle">query string style variables</a> |
+<a href="#page">page variables</a> |
+<a href="#examples">query string examples</a> |
+<a href="#performance">performance</a>
+
+</div>
+
+
+
+<p><br><br><span class=title>Query string style variables</span>
+
+
+<p>These variables are used to send color information for the board and control panel, and
+to define aspects of its behaviour and layout.
+
+<p>Many of the layout and style variables can be both predefined in the source code of <code>chessboard.html</code>
+and sent as named pairs in the query string. The query string will always take precedent, while the
+predefined values are defaults, so those values you never intend to change need never
+ be sent in the query.
+
+<p>Some of the variable names are the same in the source code as they are if defined in the query, but
+not all. Query-string syntax is used here, but the source-defined name
+is also given, for example:
+
+<ul style="font-weight:bold">size  [<code>squareSIZE</code>]</ul>
+
+
+where <b>size</b> is the query string pair name and <code>squareSIZE</code> is the source code variable
+name. In all cases, the syntax used to define the actual values in the query string is subtly different,
+ in a couple of important ways:
+
+<ol>
+<li>do not use quotes to differentiate string values from numbers; values must never
+ include quotes, or script errors will occur.
+<li>don't use the <code>#</code>
+ symbol when defining hex color values;
+ including them will also cause errors.
+</ol>
+
+
+<p>Some query string examples are given <a href="#examples">later in this document</a>
+
+
+<p><table cellpadding=5 cellspacing=0 border=0>
+<tr>
+<td width=100 valign=top style="font-weight:bold">
+
+view
+
+</td><td>
+
+<code>w</code>
+
+<p>Specify whether to default to white <code>w</code> or black <code>b</code> point of view.
+This can be user controlled, using a button in the player control panel.
+
+</td>
+</tr>
+<tr>
+<td width=100 valign=top style="font-weight:bold">
+
+size  [<code>squareSIZE</code>]
+
+</td><td>
+
+<code>35</code>
+
+<p>The board square size. A range between 20-50 pixels is useable. This value is also the width and
+height of the piece images, so used in combination with the <b>pieces</b> variable, you could, for
+example, define large squares with high-resolution images.
+
+</td>
+</tr>
+<tr>
+<td width=100 valign=top style="font-weight:bold">
+
+pieces  [<code>pieceFOLDER</code>]
+
+</td><td>
+
+<code>standard</code>
+
+<p>Specify the name of the folder used for chess piece images, which must
+live in the root directory of the chess player script package.
+
+</td>
+</tr>
+<tr>
+<td width=100 valign=top style="font-weight:bold">
+
+showLegal  [<code>showLegal</code>]
+
+</td><td>
+
+<code>true</code>
+
+<p>Whether to show a marker for legal moves. This is a useful tutoring mode, but more experienced players
+may find it distracting. Enabling it also makes a small difference to the processing time required
+for each manual piece move. This mode is user-controlled, using a checkbox in the player control panel.
+
+</td>
+</tr>
+<tr>
+<td width=100 valign=top style="font-weight:bold">
+
+blockIllegal  [<code>blockIllegal</code>]
+
+</td><td>
+
+<code>true</code>
+
+<p>Whether to disallow illegal moves. This also makes a small difference to the processing time required
+for each manual piece move, but you can improve this by using it in the background, without the accompanying
+<b>showLegal</b> indicators. This mode, which can be used in combination with or independently of
+<b>showLegal</b>, is also user-controlled.
+
+</td>
+</tr>
+<tr>
+<td width=100 valign=top style="font-weight:bold">
+
+panels
+
+</td><td>
+
+<code>true,true,true,true,true</code>
+
+<p>This defines which of the five control panel groups are expanded
+or contract by default.  Specify the five panels in order - where the top-right panel is the first value,
+and the bottom-left FEN display is the last one - using comma delimited boolean values
+for open (true) or contracted (false). The panel layout is user-controlled.
+
+</td>
+</tr>
+<tr>
+<td width=150 valign=top style="font-weight:bold">
+
+lightCOLOR  [<code>lightCOLOR</code>]
+
+</td><td>
+
+<code>eacda5</code>
+<p>The main body background color, the background color of light form elements,
+and the text color in dark form elements; specify a hex color value or color name.
+
+
+
+</td>
+</tr>
+<tr>
+<td width=150 valign=top style="font-weight:bold">
+
+darkCOLOR  [<code>darkCOLOR</code>]
+
+</td><td>
+
+<p><code>9d7752</code>
+<p>The control panel background color,
+including all buttons and dark form elements; specify a hex color value or color name.
+
+
+</td>
+</tr>
+<tr>
+<td width=150 valign=top style="font-weight:bold">
+
+borderCOLOR  [<code>borderCOLOR</code>]
+
+</td><td>
+
+<p><code>613825</code>
+<p>The color of the thin double-border around the edge of the chessboard, and the text
+color in light form elements; specify a hex color value or color name.
+
+
+</td>
+</tr>
+<tr>
+<td width=150 valign=top style="font-weight:bold">
+
+boardBACKING  [<code>boardBACKING</code>]
+
+</td><td>
+
+<p><code>dabd95</code>
+<p>The background color of the area around the chessboard; specify a hex color value or color name.
+
+
+</td>
+</tr>
+<tr>
+<td width=150 valign=top style="font-weight:bold">
+
+whiteSQUARES  [<code>whiteSQUARES</code>]
+
+</td><td>
+
+<p><code>f4d8b0</code>
+<p>The color of white board squares; specify a hex color value, color name, or a GIF or JPG image.
+
+
+</td>
+</tr>
+<tr>
+<td width=150 valign=top style="font-weight:bold">
+
+blackSQUARES  [<code>blackSQUARES</code>]
+
+</td><td>
+
+<p><code>9d7752</code>
+<p>The color of black board squares; specify a hex color value, color name, or a GIF or JPG image.
+
+
+</td>
+</tr>
+<tr>
+<td width=150 valign=top style="font-weight:bold">
+
+shadowCOLOR  [<code>shadowCOLOR</code>]
+
+</td><td>
+
+<p><code>5a5a5a</code>
+<p>For ie5.5 and ie6 only, the dropshadow color underneath a piece when it's picked up.
+It's possible to disable the dropshadow effect altogether, by defining it in the source code of
+<code>chessboard.html</code> as <code>shadowCOLOR = "";</code>
+
+
+</td>
+</tr>
+</table>
+
+
+
+
+<p><a name="page"></a><br><div align=right>
+<a href="#top">top</a> |
+<a href="#querygame">query string game variables</a> |
+<a href="#querystyle">query string style variables</a> |
+<a href="#page">page variables</a> |
+<a href="#examples">query string examples</a> |
+<a href="#performance">performance</a>
+
+</div>
+
+<p><br><br><span class=title>Page variables</span>
+
+<p>These values can only be set in the source code of <code>chessboard.html</code>
+
+<p><table cellpadding=5 cellspacing=0 border=0>
+<tr>
+<td width=150 valign=top style="font-weight:bold">
+
+pageName
+
+</td><td>
+
+<p><code>"chessboard.html"</code>
+<p>The filename of the chessboard page. You will need to alter this value if you rename the file.
+
+
+</td>
+</tr>
+<tr>
+<td width=150 valign=top style="font-weight:bold">
+
+pagePath
+
+</td><td>
+
+<p><code>"http://www.mydomain.com/ChessPlayer/"</code>
+<p>Define the absolute path used in the player-format export
+to generate game urls.  Whatever you specify here is appended
+to the filename given in <b>pageName</b>, to create the url, eg:
+
+<ul><code>http://www.mydomain.com/ChessPlayer/chessboard.html?game=</code> ...etc</ul>
+
+<p>If you leave it as <code>pagePath = ""</code>
+then the script will generate absolute links to itself.
+
+
+</td>
+</tr>
+<tr>
+<td width=150 valign=top style="font-weight:bold">
+
+playbackSpeed
+
+</td><td>
+
+<p><code>2000</code>
+<p>The speed of automatic play-through, in milliseconds per move.
+
+
+</td>
+</tr>
+<tr>
+<td width=150 valign=top style="font-weight:bold">
+
+showSquareInfo
+
+</td><td>
+
+<p><code>""</code>
+<p>The board squares are normally blank, but you can use this variable to label each square, with:
+<ul>
+<li><code>"numbers"</code> - where 0 is the top left and 63 is the bottom right,
+<li><code>"names"</code> - from a8 to h1, or
+<li><code>"both"</code>
+</ul>
+
+</td>
+</tr>
+<tr>
+<td width=150 valign=top style="font-weight:bold">
+
+outputToNotepad
+
+</td><td>
+
+<p><code>false</code>
+<p>Export logs are normally written as HTML pages, however ChessPlayer can export plain text documents,
+in the form of <code>.tmp</code> files which are saved onto your desktop.
+
+<p>I wanted to try this just to see if it could be done, planning eventually to do it in PHP.
+But it seemed a shame to remove it.
+It uses an ActiveX control to access the file system, so you will get a
+security warning if
+you turn it on, and it will not work on the internet at all.
+
+
+</td>
+</tr>
+<tr>
+<td width=150 valign=top style="font-weight:bold">
+
+enablePgnImport
+
+</td><td>
+
+<p><code>true</code>
+<p>Optionally disable the pgn import facility by setting this
+variable to <code>false</code>. You should do this if:
+
+<ul>
+<li>you don't want pgn import capabilities, or
+<li>your server doesn't support PHP and you don't have the time or inclination to
+port it to another scripting language.
+</ul>
+
+
+</td>
+</tr>
+<tr>
+<td width=150 valign=top style="font-weight:bold">
+
+pgnProcess
+
+</td><td>
+
+<p><code>"pgnImport.php"</code>
+<p>The script package comes with two versions of the pgn import module, which can be
+found in <code>_program/_import</code>. All use the same js archive to do the actual
+conversion, but have different interfaces and functionality.
+
+<p>Used locally, the script will always open <code>pgnImport.html</code>, which is a simple
+file-input for selecting .pgn archives from your computer.
+
+<p>When used on a web server (specifically, through HTTP) the script will call <code>pgnImport.php</code>, or
+whatever you specify with <b>pgnProcess</b>.
+
+<p><code>pgnImport.php</code> creates a list of the files in
+the <code>_pgn</code> directory, and handles writing their contents into a textfield
+for the javascript to read. Before using this you must set a variable in its source
+code - <code>$the_path</code> - which defines
+the path to the <code>_import</code> directory from the
+server root.
+</ul>
+
+
+</td>
+</tr>
+<!--
+<tr>
+<td width=150 valign=top style="font-weight:bold">
+
+yourMessage
+
+</td><td>
+
+<p><code>""</code>
+<p>Optionally specify a message to be written in the space at the bottom of the board, underneath
+the input/output text boxes.  This message will be clipped if it exceeds 460px, and only
+appears in ie5+
+
+</td>
+</tr>
+-->
+</table>
+
+
+<p><a name="examples"></a><br><div align=right>
+<a href="#top">top</a> |
+<a href="#querygame">query string game variables</a> |
+<a href="#querystyle">query string style variables</a> |
+<a href="#page">page variables</a> |
+<a href="#examples">query string examples</a> |
+<a href="#performance">performance</a>
+
+</div>
+
+
+
+<p><br><br><span class=title>Query string examples</span>
+
+<p>The following examples give an idea of what kinds of data can be combined.
+The golden rule is that anything you define in the source code of
+<code>chessboard.html</code> is used as default, and doesn't need to be in
+the query string if those settings are okay.
+
+<p>The script sometimes needs to reload itself, for example when resizing
+the board, and in these cases it adds all the query string variables
+necessary to reproduce the current layout and appearance - thus maintaining any settings
+the user has changed themselves.
+There's no need to be concerned about this, but it's worth knowing.
+
+<p>Anyway, here's a few examples.
+
+<ul>
+
+<li>A single FEN position [<a href="chessboard.html?pos=r1bqkbnr/pp3ppp/2n5/2p1p3/4P3/2P2N2/PP3PPP/RNBQKB1R w KQkq - 0 6" target="_blank">demo</a>]
+<br><code>pos=r1bqkbnr/pp3ppp/2n5/2p1p3/4P3/2P2N2/PP3PPP/RNBQKB1R w KQkq - 0 6</code>
+
+<p><li>That position from black's viewpoint [<a href="chessboard.html?pos=r1bqkbnr/pp3ppp/2n5/2p1p3/4P3/2P2N2/PP3PPP/RNBQKB1R w KQkq - 0 6&view=b" target="_blank">demo</a>]
+<br><code>pos=r1bqkbnr/pp3ppp/2n5/2p1p3/4P3/2P2N2/PP3PPP/RNBQKB1R w KQkq - 0 6&view=b</code>
+
+<p><li>That position with the last move indicated [<a href="chessboard.html?pos=r1bqkbnr/pp3ppp/2n5/2p1p3/4P3/2P2N2/PP3PPP/RNBQKB1R w KQkq - 0 6&last=d6c5" target="_blank">demo</a>]
+<br><code>pos=r1bqkbnr/pp3ppp/2n5/2p1p3/4P3/2P2N2/PP3PPP/RNBQKB1R w KQkq - 0 6&last=d6c5</code>
+
+<p><li>That position with larger pieces [<a href="chessboard.html?pos=r1bqkbnr/pp3ppp/2n5/2p1p3/4P3/2P2N2/PP3PPP/RNBQKB1R w KQkq - 0 6&size=45" target="_blank">demo</a>]
+<br><code>pos=r1bqkbnr/pp3ppp/2n5/2p1p3/4P3/2P2N2/PP3PPP/RNBQKB1R w KQkq - 0 6&size=45</code>
+
+<p><li>That position with different colours [<a href="chessboard.html?pos=r1bqkbnr/pp3ppp/2n5/2p1p3/4P3/2P2N2/PP3PPP/RNBQKB1R w KQkq - 0 6&lightCOLOR=a3abc2&darkCOLOR=5d7792&borderCOLOR=763604&whiteSQUARES=d4d8d0&blackSQUARES=6d7782&boardBACKING=a6acba&shadowCOLOR=5a5a5a" target="_blank">demo</a>]
+<br><code>pos=r1bqkbnr/pp3ppp/2n5/2p1p3/4P3/2P2N2/PP3PPP/RNBQKB1R w KQkq - 0 6&lightCOLOR=a3abc2&darkCOLOR=5d7792&borderCOLOR=763604&whiteSQUARES=d4d8d0&blackSQUARES=6d7782&boardBACKING=a6acba&shadowCOLOR=5a5a5a</code>
+
+<p><li>That position with merida pieces [<a href="chessboard.html?pos=r1bqkbnr/pp3ppp/2n5/2p1p3/4P3/2P2N2/PP3PPP/RNBQKB1R w KQkq - 0 6&pieces=merida" target="_blank">demo</a>]
+<br><code>pos=r1bqkbnr/pp3ppp/2n5/2p1p3/4P3/2P2N2/PP3PPP/RNBQKB1R w KQkq - 0 6&pieces=merida</code>
+
+<p><li>A game in progress, with the last move indicated [<a href="chessboard.html?game=e2e4,e7e5,g1f3,g8f6,f3e5,d7d6,e5f3,f6e4,d2d4,d6d5,f1d3,f8e7,e1g1,b8c6,f1e1,c8g4,c2c3,f7f5,d1b3,e8g8,b1d2,g8h8,b3b7,f8f6,b7b3,f6g6,d3f1&last=d3f1" target="_blank">demo</a>]
+<br><code>game=e2e4,e7e5,g1f3,g8f6,f3e5,d7d6,e5f3,f6e4,d2d4,d6d5,f1d3,f8e7,e1g1,b8c6,f1e1,c8g4,c2c3,f7f5,d1b3,e8g8,b1d2,g8h8,b3b7,f8f6,b7b3,f6g6,d3f1&last=d3f1</code>
+
+<p><li>The same game, from the beginning, with strict mode and valid-move indicators disabled, and the top-two panels closed [<a href="chessboard.html?game=e2e4,e7e5,g1f3,g8f6,f3e5,d7d6,e5f3,f6e4,d2d4,d6d5,f1d3,f8e7,e1g1,b8c6,f1e1,c8g4,c2c3,f7f5,d1b3,e8g8,b1d2,g8h8,b3b7,f8f6,b7b3,f6g6,d3f1&showLegal=false&blockIllegal=false&panels=false,false,true,true,true" target="_blank">demo</a>]
+<br><code>game=e2e4,e7e5,g1f3,g8f6,f3e5,d7d6,e5f3,f6e4,d2d4,d6d5,f1d3,f8e7,e1g1,b8c6,f1e1,c8g4,c2c3,f7f5,d1b3,e8g8,b1d2,g8h8,b3b7,f8f6,b7b3,f6g6,d3f1&showLegal=false&blockIllegal=false&panels=false,false,true,true,true</code>
+
+<p><li>Mach III vs ChessMachine 3.0 30 (complete game + all variables) [<a href="chessboard.html?game=d2d4,g8f6,c2c4,e7e5,d4e5,f6g4,c1f4,b8c6,g1f3,f8b4,b1c3,b4c3,b2c3,d8e7,a1b1,c6e5,h2h3,e5f3,g2f3,g4e5,f4e5,e7e5,d1d4,e5f5,d4e3,e8d8,e3c1,h8e8,h1g1,g7g6,g1g3,d7d6,e2e4,f5a5,c1d2,f7f5,g3g5,a5e5,f1g2,e5f6,g2h1,b7b6,c4c5,b6c5,b1b3,c8e6,b3b2,d8c8,g5g1,f5e4,f3e4,e6h3,d2d3,h3e6,g1g3,f6f4,d3a6,c8d7,a6a4,d7d8,a4d1,d8c8,b2d2,a8b8,d1a4,e6d7,a4a6,b8b7,a6d3,d7c6,g3e3,c5c4,d3e2,c6a4,e2f3,b7b1,e1e2,f4g5,h1g2,h7h5,e4e5,e8e5,f3a8,c8d7,g2h3,d7e7,a8a7,e5e3,f2e3,g5h4,a7c7,e7f8,c7d6,f8g7,d6d4,h4d4,d2d4,g6g5,h3e6,b1b2,e2f3,b2a2,e6c4,a2c2,d4d3,h5h4,f3g4,c2g2,g4h3,g2g3,h3h2,a4e8,e3e4,g3d3,c4d3,g7f6,h2h3,e8d7,h3h2,f6e5,h2g2,g5g4,c3c4,e5d4,d3c2,d4c4,g2g1,c4d4,c2b1,g4g3,g1g2,d4e3,b1a2,d7g4,a2b3&last=a2b3&panels=true,true,true,true,true&size=35&view=w&pieces=standard&showLegal=true&blockIllegal=true&Event=?&Site=6 7&Date=1992.??.??&Round=7&White=Mach III&Black=Chessmachine 3.0 30&Result=0-1&WhiteElo=-&BlackElo=-&WhiteNationality=?&BlackNationality=?&lightCOLOR=eacda5&darkCOLOR=9d7752&borderCOLOR=613825&whiteSQUARES=f4d8b0&blackSQUARES=9d7752&boardBACKING=dabd95&shadowCOLOR=5a5a5a" target="_blank">demo</a>]
+<br><code>game=d2d4,g8f6,c2c4,e7e5,d4e5,f6g4,c1f4,b8c6,g1f3,f8b4,b1c3,b4c3,b2c3,d8e7,a1b1,c6e5,h2h3,e5f3,g2f3,g4e5,f4e5,e7e5,d1d4,e5f5,d4e3,e8d8,e3c1,h8e8,h1g1,g7g6,g1g3,d7d6,e2e4,f5a5,c1d2,f7f5,g3g5,a5e5,f1g2,e5f6,g2h1,b7b6,c4c5,b6c5,b1b3,c8e6,b3b2,d8c8,g5g1,f5e4,f3e4,e6h3,d2d3,h3e6,g1g3,f6f4,d3a6,c8d7,a6a4,d7d8,a4d1,d8c8,b2d2,a8b8,d1a4,e6d7,a4a6,b8b7,a6d3,d7c6,g3e3,c5c4,d3e2,c6a4,e2f3,b7b1,e1e2,f4g5,h1g2,h7h5,e4e5,e8e5,f3a8,c8d7,g2h3,d7e7,a8a7,e5e3,f2e3,g5h4,a7c7,e7f8,c7d6,f8g7,d6d4,h4d4,d2d4,g6g5,h3e6,b1b2,e2f3,b2a2,e6c4,a2c2,d4d3,h5h4,f3g4,c2g2,g4h3,g2g3,h3h2,a4e8,e3e4,g3d3,c4d3,g7f6,h2h3,e8d7,h3h2,f6e5,h2g2,g5g4,c3c4,e5d4,d3c2,d4c4,g2g1,c4d4,c2b1,g4g3,g1g2,d4e3,b1a2,d7g4,a2b3&last=a2b3&panels=true,true,true,true,true&size=35&view=w&pieces=standard&showLegal=true&blockIllegal=true&Event=?&Site=6 7&Date=1992.??.??&Round=7&White=Mach III&Black=Chessmachine 3.0 30&Result=0-1&WhiteElo=-&BlackElo=-&WhiteNationality=?&BlackNationality=?&lightCOLOR=eacda5&darkCOLOR=9d7752&borderCOLOR=613825&whiteSQUARES=f4d8b0&blackSQUARES=9d7752&boardBACKING=dabd95&shadowCOLOR=5a5a5a</code>
+
+<p>You get the idea ...
+
+
+</ul>
+
+
+
+
+<p><br><br>You can also open games using a <code>javascript:</code> url to call a window-opening function.
+Something like this, which must be in the <code>&lt;body&gt;</code> section:
+
+<pre>
+&lt;script language="javascript1.2"&gt;
+
+function chessWindow(chessUrl) {
+
+	if(typeof document.all!="undefined" && typeof window.opera=="undefined") {
+		var winSize = [676,474];
+		var winPos = [0,0];
+		var scrDim = new Array(screen.width,screen.height);
+		if(scrDim[0]>800) {
+			winPos = [(scrDim[0]-winSize[0])/2,((scrDim[1]-winSize[1])/2)-32];
+			}
+		var chessWin = window.open("ChessPlayer/chessboard.html?"+chessUrl,"chessWin","left="+winPos[0]+",top="+winPos[1]+",width="+winSize[0]+",height="+winSize[1]+",status=yes,menubar=no,toolbar=no,scrollbars=no,resizable=no");
+		chessWin.focus();
+		}
+
+	}
+
+&lt;/script&gt;
+</pre>
+
+<p>This opens a  window with minimal decorations; I've left the status bar so that users
+can see the document's status. The window is self-resizing,
+which means you can use it with impunity, safe in the knowledge that boards
+of any size and layout will fit perfectly. But note that if this is to work you should
+use the above function exactly as it is (unmodified) - since the resizing code relies on its values.
+
+<p>Call the function like this:
+
+<p><pre>
+&lt;a href="javascript:chessWindow('game=e2e4,e7e5,g1f3,g8f6,f3e5,d7d6,e5f3,f6e4,d2d4,d6d5,f1d3,f8e7,e1g1,b8c6,f1e1,c8g4,c2c3,f7f5,d1b3,e8g8,b1d2,g8h8,b3b7,f8f6,b7b3,f6g6,d3f1&last=d3f1')"&gtopen chess game&lt;/a&gt
+</pre>
+
+
+<p>Where the entire query (without the <code>?</code> delimitor) is sent as a string value to the function.
+
+
+<p><a name="performance"></a><br><div align=right>
+<a href="#top">top</a> |
+<a href="#querygame">query string game variables</a> |
+<a href="#querystyle">query string style variables</a> |
+<a href="#page">page variables</a> |
+<a href="#examples">query string examples</a> |
+<a href="#performance">performance</a>
+
+</div>
+
+
+<p><br><br><span class=title>Performance</span>
+
+<p>You'll probably have noticed that the script is quite large.  The style and layout code in
+<code>chessboard.html</code> is 31K, while the main <code>chess.js</code> script
+is 98K.
+
+<p>The presence of query string data means that <code>chessboard.html</code> will almost never be called
+from cache, since its url is usually different each time. However <code>chess.js</code> <i>will</i>
+cache, because it's an external file, so you will
+notice a significant improvement in loading speed after the first time.
+
+<p>The chess piece images, and the images necessary for the panel layout, amount
+to 4K, while the pgn import module is 33K for the page and conversion script. These latter two
+files are not called until you open the import window, and will also cache.
+
+
+</body></html>
+
+
